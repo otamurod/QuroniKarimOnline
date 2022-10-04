@@ -1,5 +1,6 @@
 package com.otamurod.apicallusingmvvmcoroutines
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.otamurod.apicallusingmvvmcoroutines.databinding.ActivityMainBinding

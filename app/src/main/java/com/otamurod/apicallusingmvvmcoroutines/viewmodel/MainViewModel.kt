@@ -8,7 +8,6 @@ import com.otamurod.apicallusingmvvmcoroutines.network.RetrofitInstance
 import com.otamurod.apicallusingmvvmcoroutines.network.RetrofitService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import retrofit2.http.Query
 
 class MainViewModel : ViewModel() {
 
@@ -23,10 +22,13 @@ class MainViewModel : ViewModel() {
     }
 
     fun makeApiCall(query: String) {
+
         viewModelScope.launch(Dispatchers.IO) {
-            val retrofitService = RetrofitInstance.getRetrofitInstance().create(RetrofitService::class.java)
-            val response = retrofitService.getDataFromAPI(query)
+            val retrofitService =
+                RetrofitInstance.getRetrofitInstance().create(RetrofitService::class.java)
+            val response = retrofitService.getDataFromAPI()
             recyclerListLiveData.postValue(response)
+
         }
     }
 }

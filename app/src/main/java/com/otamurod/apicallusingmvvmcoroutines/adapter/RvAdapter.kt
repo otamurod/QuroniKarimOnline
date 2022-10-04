@@ -20,13 +20,10 @@ class RvAdapter() : RecyclerView.Adapter<RvAdapter.VH>() {
     inner class VH(val itamRvBinding: ItemRvBinding) : RecyclerView.ViewHolder(itamRvBinding.root) {
 
         fun onBInd(data: RecyclerData) {
-
-            Picasso.get()
-                .load(data.owner.avatar_url)
-                .into(itamRvBinding.imageThumb)
             
+            itamRvBinding.number.text = data.number.toString()
             itamRvBinding.name.text = data.name
-            itamRvBinding.description.text = data.description
+            itamRvBinding.description.text = data.englishName
         }
     }
 
