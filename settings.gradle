@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "ApiCallusingMVVMCoroutines"
+rootProject.name = "Qur'oni Karim Online"
 include ':app'

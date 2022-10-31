@@ -1,0 +1,27 @@
+package com.otamurod.quronikarim.app.data.repository.datasource
+
+import com.otamurod.quronikarim.app.data.remote.ApiService
+import com.otamurod.quronikarim.app.data.remote.dto.MainResponse
+import com.otamurod.quronikarim.app.data.remote.dto.audio.SurahAudioDto
+import com.otamurod.quronikarim.app.data.remote.dto.details.SurahDetailDto
+import com.otamurod.quronikarim.app.data.remote.dto.surah.SurahDto
+import retrofit2.Response
+
+class SurahDataSourceImpl(
+    private val apiService: ApiService
+) : SurahDataSource {
+    override suspend fun getSurahList(): Response<MainResponse<List<SurahDto>>> {
+        return apiService.getSurahFromAPI()
+    }
+
+    override suspend fun getSurahDetail(number: Int): Response<MainResponse<SurahDetailDto>> {
+        return apiService.getSurahDetailFromAPI(number)
+    }
+
+    override suspend fun getSurahAudio(
+        number: Int,
+        identifier: String
+    ): Response<MainResponse<SurahAudioDto>> {
+        return apiService.getSurahAudioFromAPI(number, identifier)
+    }
+}
