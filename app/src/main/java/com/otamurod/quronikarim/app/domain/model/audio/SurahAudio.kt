@@ -8,5 +8,5 @@ data class SurahAudio(
     val name: String,
     val number: Int,
     val numberOfAyahs: Int,
-    val revelationType: String
+//    val revelationType: String
 )

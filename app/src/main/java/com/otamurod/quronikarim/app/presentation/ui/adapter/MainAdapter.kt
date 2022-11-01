@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.otamurod.quronikarim.app.domain.model.surah.Surah
-import com.otamurod.quronikarim.databinding.ItemRvBinding
+import com.otamurod.quronikarim.databinding.ItemSurahBinding
 
 class MainAdapter(
     var context: Context,
@@ -25,22 +25,22 @@ class MainAdapter(
         notifyDataSetChanged()
     }
 
-    inner class VH(val itemRvBinding: ItemRvBinding) : RecyclerView.ViewHolder(itemRvBinding.root) {
+    inner class VH(val itemSurahBinding: ItemSurahBinding) : RecyclerView.ViewHolder(itemSurahBinding.root) {
 
         fun onBind(surah: Surah) {
 
-            itemRvBinding.number.text = surah.number.toString()
-            itemRvBinding.name.text = surah.name
-            itemRvBinding.description.text = surah.englishName
+            itemSurahBinding.number.text = surah.number.toString()
+            itemSurahBinding.name.text = surah.name
+            itemSurahBinding.description.text = surah.englishName
 
-            itemRvBinding.root.setOnClickListener {
-                onClick.onItemClick(surah.number)
+            itemSurahBinding.root.setOnClickListener {
+                onClick.onItemClick(surah)
             }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        return VH(ItemRvBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        return VH(ItemSurahBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
@@ -50,6 +50,6 @@ class MainAdapter(
     override fun getItemCount() = items.size
 
     interface OnClick {
-        fun onItemClick(surahNumber: Int)
+        fun onItemClick(surah:Surah)
     }
 }

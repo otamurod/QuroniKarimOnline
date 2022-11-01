@@ -3,20 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/app_graph"
-    app:startDestination="@id/recyclerListFragment">
+    app:startDestination="@id/MainFragment">
 
     <fragment
-        android:id="@+id/recyclerListFragment"
+        android:id="@+id/MainFragment"
         android:name="com.otamurod.quronikarim.app.presentation.ui.main.MainFragment"
         android:label="fragment_recycler_list"
-        tools:layout="@layout/fragment_main" >
+        tools:layout="@layout/fragment_main">
+
         <action
-            android:id="@+id/action_recyclerListFragment_to_surahFragment"
+            android:id="@+id/action_MainFragment_to_surahFragment"
             app:destination="@id/surahFragment" />
     </fragment>
     <fragment
         android:id="@+id/surahFragment"
         android:name="com.otamurod.quronikarim.app.presentation.ui.surah.SurahFragment"
         android:label="fragment_surah"
-        tools:layout="@layout/fragment_surah" />
+        tools:layout="@layout/fragment_surah">
+        <argument
+            android:name="surah"
+            app:argType="com.otamurod.quronikarim.app.domain.model.surah.Surah" />
+        <argument
+            android:name="identifier"
+            app:argType="string" />
+    </fragment>
 </navigation>

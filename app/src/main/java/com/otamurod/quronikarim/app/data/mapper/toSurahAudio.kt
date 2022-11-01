@@ -11,7 +11,7 @@ fun SurahAudioDto.toSurahAudio(): SurahAudio {
         englishNameTranslation,
         name,
         number,
-        numberOfAyahs,
-        revelationType
+        numberOfAyahs
+//        revelationType
     )
 }

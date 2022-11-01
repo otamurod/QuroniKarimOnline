@@ -6,6 +6,11 @@ import com.otamurod.quronikarim.app.domain.model.audio.EditionAudio
 fun EditionAudioDto.toEditionAudio(): EditionAudio {
     return EditionAudio(
 //        direction,
-        englishName, format, identifier, language, name, type
+//        englishName,
+//        format,
+        identifier,
+        language
+//        name,
+//        type
     )
 }

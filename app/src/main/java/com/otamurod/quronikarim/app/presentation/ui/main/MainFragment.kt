@@ -7,12 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.otamurod.quronikarim.R
+import com.otamurod.quronikarim.app.domain.model.surah.Surah
 import com.otamurod.quronikarim.app.presentation.ui.adapter.MainAdapter
 import com.otamurod.quronikarim.app.presentation.utils.checkNetworkStatus
 import com.otamurod.quronikarim.databinding.FragmentMainBinding
@@ -55,9 +54,10 @@ class MainFragment : Fragment() {
 
     private fun initAdapter() {
         mainAdapter = MainAdapter(requireContext(), object : MainAdapter.OnClick {
-            override fun onItemClick(surahNumber: Int) {
-                val bundle = bundleOf("surahNumber" to surahNumber, "identifier" to "ar.alafasy")
-                findNavController().navigate(R.id.surahFragment, bundle)
+            override fun onItemClick(surah: Surah) {
+                val action =
+                    MainFragmentDirections.actionMainFragmentToSurahFragment(surah, "ar.alafasy")
+                findNavController().navigate(action)
             }
         })
         binding.recyclerView.adapter = mainAdapter
