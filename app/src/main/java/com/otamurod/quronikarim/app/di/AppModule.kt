@@ -3,7 +3,9 @@ package com.otamurod.quronikarim.app.di
 import com.otamurod.quronikarim.app.data.remote.ApiClient
 import com.otamurod.quronikarim.app.data.remote.ApiService
 import com.otamurod.quronikarim.app.data.repository.RepositoryImpl
+import com.otamurod.quronikarim.app.data.repository.datasource.SurahDataSource
 import com.otamurod.quronikarim.app.data.repository.datasource.SurahDataSourceImpl
+import com.otamurod.quronikarim.app.domain.repository.Repository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,13 +23,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSurahDataSource(apiService: ApiService): SurahDataSourceImpl {
+    fun provideSurahDataSource(apiService: ApiService): SurahDataSource {
         return SurahDataSourceImpl(apiService)
     }
 
     @Provides
     @Singleton
-    fun provideRepository(surahDataSourceImpl: SurahDataSourceImpl): RepositoryImpl {
-        return RepositoryImpl(surahDataSourceImpl)
+    fun provideRepository(surahDataSource: SurahDataSource): Repository {
+        return RepositoryImpl(surahDataSource)
     }
 }

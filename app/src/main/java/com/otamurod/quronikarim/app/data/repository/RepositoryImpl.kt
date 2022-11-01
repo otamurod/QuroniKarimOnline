@@ -4,6 +4,7 @@ import android.util.Log
 import com.otamurod.quronikarim.app.data.mapper.toSurah
 import com.otamurod.quronikarim.app.data.mapper.toSurahAudio
 import com.otamurod.quronikarim.app.data.mapper.toSurahDetail
+import com.otamurod.quronikarim.app.data.repository.datasource.SurahDataSource
 import com.otamurod.quronikarim.app.data.repository.datasource.SurahDataSourceImpl
 import com.otamurod.quronikarim.app.domain.model.audio.SurahAudio
 import com.otamurod.quronikarim.app.domain.model.detail.SurahDetail
@@ -16,16 +17,16 @@ import javax.inject.Inject
 private const val TAG = "RepositoryImpl"
 
 class RepositoryImpl @Inject constructor(
-    private val dataSourceImpl: SurahDataSourceImpl
+    private val surahDataSource: SurahDataSource
 ) : Repository {
     override suspend fun getAllSurah(): Flow<List<Surah>> = flow {
-        val response = dataSourceImpl.getSurahList()
+        val response = surahDataSource.getSurahList()
         emit(response.body()!!.data.map { it.toSurah() })
     }
 
     override suspend fun getSurah(surahNumber: Int): Flow<SurahDetail> = flow {
         try {
-            val response = dataSourceImpl.getSurahDetail(surahNumber)
+            val response = surahDataSource.getSurahDetail(surahNumber)
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
@@ -45,7 +46,7 @@ class RepositoryImpl @Inject constructor(
         identifier: String
     ): Flow<SurahAudio> = flow {
         try {
-            val response = dataSourceImpl.getSurahAudio(number, identifier)
+            val response = surahDataSource.getSurahAudio(number, identifier)
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {

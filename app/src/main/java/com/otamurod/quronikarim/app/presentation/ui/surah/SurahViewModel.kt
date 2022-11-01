@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.otamurod.quronikarim.app.data.repository.RepositoryImpl
 import com.otamurod.quronikarim.app.domain.model.audio.SurahAudio
 import com.otamurod.quronikarim.app.domain.model.detail.SurahDetail
+import com.otamurod.quronikarim.app.domain.repository.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -15,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SurahViewModel @Inject constructor(
-    private val repositoryImpl: RepositoryImpl
+    private val repository: Repository
 ) : ViewModel() {
     private var _surahDetail = MutableLiveData<SurahDetail>()
     val surahDetail: LiveData<SurahDetail> = _surahDetail
@@ -25,7 +26,7 @@ class SurahViewModel @Inject constructor(
 
     fun getSurahDetailCall(surahNumber: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            repositoryImpl.getSurah(surahNumber).collectLatest {
+            repository.getSurah(surahNumber).collectLatest {
                 _surahDetail.postValue(it)
             }
         }
@@ -33,7 +34,7 @@ class SurahViewModel @Inject constructor(
 
     fun getSurahAudioCall(surahNumber: Int, identifier: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            repositoryImpl.getSurahAudio(surahNumber, identifier)
+            repository.getSurahAudio(surahNumber, identifier)
                 .collectLatest {
                     _surahAudio.postValue(it)
                 }

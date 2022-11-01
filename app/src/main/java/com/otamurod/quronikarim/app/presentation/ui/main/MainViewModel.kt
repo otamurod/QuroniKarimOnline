@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.otamurod.quronikarim.app.data.repository.RepositoryImpl
 import com.otamurod.quronikarim.app.domain.model.surah.Surah
+import com.otamurod.quronikarim.app.domain.repository.Repository
 import com.otamurod.quronikarim.app.presentation.utils.SingleLiveEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val repositoryImpl: RepositoryImpl
+    private val repository: Repository
 ) : ViewModel() {
     private var _surahs = MutableLiveData<List<Surah>>()
     val surahs = _surahs
@@ -27,7 +28,7 @@ class MainViewModel @Inject constructor(
 
     fun getSurahesCall() {
         viewModelScope.launch(Dispatchers.IO) {
-            repositoryImpl.getAllSurah()
+            repository.getAllSurah()
                 .catch {
                     withContext(Dispatchers.Main) {
                         _error.call()
