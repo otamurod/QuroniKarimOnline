@@ -6,11 +6,10 @@ import android.net.Network
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import com.otamurod.quronikarim.app.presentation.ui.main.requestAllSurahs
 
 @RequiresApi(Build.VERSION_CODES.N)
 fun checkNetworkStatus(context: Context?): Boolean {
-    var connection = false
+    var connection: Boolean
 
     val conMgr =
         context?.getSystemService(Context.CONNECTIVITY_SERVICE) as (ConnectivityManager)
@@ -40,7 +39,7 @@ private fun networkChangeListener(context: Context?) {
             override fun onAvailable(network: Network) {
                 //take action when network connection is gained
                 Toast.makeText(context, "Back Online", Toast.LENGTH_SHORT).show()
-                requestAllSurahs()
+//                requestAllSurahs()
             }
 
             override fun onLost(network: Network) {

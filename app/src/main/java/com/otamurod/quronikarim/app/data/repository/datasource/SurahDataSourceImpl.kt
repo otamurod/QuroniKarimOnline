@@ -6,8 +6,9 @@ import com.otamurod.quronikarim.app.data.remote.dto.audio.SurahAudioDto
 import com.otamurod.quronikarim.app.data.remote.dto.details.SurahDetailDto
 import com.otamurod.quronikarim.app.data.remote.dto.surah.SurahDto
 import retrofit2.Response
+import javax.inject.Inject
 
-class SurahDataSourceImpl(
+class SurahDataSourceImpl @Inject constructor(
     private val apiService: ApiService
 ) : SurahDataSource {
     override suspend fun getSurahList(): Response<MainResponse<List<SurahDto>>> {

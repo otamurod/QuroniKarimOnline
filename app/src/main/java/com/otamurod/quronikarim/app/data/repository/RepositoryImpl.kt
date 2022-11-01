@@ -11,10 +11,11 @@ import com.otamurod.quronikarim.app.domain.model.surah.Surah
 import com.otamurod.quronikarim.app.domain.repository.Repository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
 private const val TAG = "RepositoryImpl"
 
-class RepositoryImpl(
+class RepositoryImpl @Inject constructor(
     private val dataSourceImpl: SurahDataSourceImpl
 ) : Repository {
     override suspend fun getAllSurah(): Flow<List<Surah>> = flow {

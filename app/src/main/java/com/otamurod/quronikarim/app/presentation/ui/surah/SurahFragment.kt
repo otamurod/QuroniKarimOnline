@@ -1,6 +1,5 @@
 package com.otamurod.quronikarim.app.presentation.ui.surah
 
-import SurahViewModelFactory
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.os.Build
@@ -11,26 +10,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.otamurod.quronikarim.R
-import com.otamurod.quronikarim.app.data.remote.ApiClient
-import com.otamurod.quronikarim.app.data.repository.RepositoryImpl
-import com.otamurod.quronikarim.app.data.repository.datasource.SurahDataSourceImpl
 import com.otamurod.quronikarim.app.domain.model.audio.SurahAudio
 import com.otamurod.quronikarim.app.presentation.utils.checkNetworkStatus
 import com.otamurod.quronikarim.databinding.FragmentSurahBinding
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 
 private const val TAG = "SurahFragment"
 
+@AndroidEntryPoint
 class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
+
     lateinit var binding: FragmentSurahBinding
-    private lateinit var viewModel: SurahViewModel
+    private val viewModel: SurahViewModel by viewModels()
     private var surahNumber = 0
     private var mediaPlayer: MediaPlayer? = null
     private lateinit var surahAudioUrlByAyahs: ArrayList<String>
@@ -60,7 +60,7 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
                 surahNumber
             )
             viewModel.getSurahAudioCall(surahNumber, identifier)
-            setMedia()
+//            setMedia()
         }
     }
 
@@ -150,47 +150,48 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun initViewModel() {
-        val dataSourceImpl = SurahDataSourceImpl(ApiClient.apiService)
-        val repositoryImpl = RepositoryImpl(dataSourceImpl)
-        viewModel =
-            ViewModelProvider(
-                this,
-                SurahViewModelFactory(repositoryImpl)
-            )[SurahViewModel::class.java]
-
         surahAudioUrlByAyahs = ArrayList()
 
         viewModel.surahAudio.observe(viewLifecycleOwner) { surahAudio ->
-            isSurahObserved = true
-            //hide progress bar
-            if (isAudioObserved) {
-                binding.progressBar.visibility = View.GONE
-            }
-            setSurahInfo(surahAudio)
+            if (surahAudio != null) {
+                isSurahObserved = true
+                isAudioObserved = true
+                //hide progress bar
+                if (isAudioObserved) {
+                    binding.progressBar.visibility = View.GONE
+                }
+                setSurahInfo(surahAudio)
 
-            var ayahNumber = 1
-            for (ayahAudio in surahAudio.ayahs) {
-                surahAudioUrlByAyahs.add(ayahAudio.audio)
-                listOfAyahsText.add(" ${ayahNumber++}\t${ayahAudio.text}\n")
+                var ayahNumber = 1
+                for (ayahAudio in surahAudio.ayahs) {
+                    surahAudioUrlByAyahs.add(ayahAudio.audio)
+                    listOfAyahsText.add(" ${ayahNumber++}\t${ayahAudio.text}\n")
 
-                val retriever = MediaMetadataRetriever()
-                retriever.setDataSource(ayahAudio.audio, HashMap())
-                val time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                val timeInMillisecond = time!!.toInt()
-                ayahsDurations.add(timeInMillisecond)
+                    val retriever = MediaMetadataRetriever()
+                    retriever.setDataSource(ayahAudio.audio, HashMap())
+                    val timeInMillisecond =
+                        retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
+                            .toInt()
+                    ayahsDurations.add(timeInMillisecond)
+                }
+                currentDuration = ayahsDurations[0]
+                stringBuilder.append(listOfAyahsText[0])
+                binding.surah.text = stringBuilder.toString()
+            } else {
+                Toast.makeText(requireContext(), "surahAudio: $surahAudio", Toast.LENGTH_SHORT)
+                    .show()
             }
-            currentDuration = ayahsDurations[0]
-            stringBuilder.append(listOfAyahsText[0])
-            binding.surah.text = stringBuilder.toString()
         }
     }
 
     private fun setSurahInfo(surahAudio: SurahAudio) {
-        binding.englishName.text = surahAudio.englishName
-        binding.name.text = surahAudio.name
-        binding.surahNumber.text = surahAudio.number.toString()
-        binding.numberOfAyahs.text = "${surahAudio.numberOfAyahs} ayahs"
-        binding.englishNameTranslation.text = surahAudio.englishNameTranslation
+        binding.apply {
+            englishName.text = surahAudio.englishName
+            name.text = surahAudio.name
+            surahNumber.text = surahAudio.number.toString()
+            numberOfAyahs.text = "${surahAudio.numberOfAyahs} ayahs"
+            englishNameTranslation.text = surahAudio.englishNameTranslation
+        }
     }
 
     private fun returnTime(position: Int?): String {
@@ -239,9 +240,11 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
 
     private fun setMedia() {
         lifecycleScope.launch(Dispatchers.IO) {
-            mediaPlayer!!.setDataSource(surahAudioUrlBySurah)
-            mediaPlayer!!.setOnPreparedListener(this@SurahFragment)
-            mediaPlayer!!.prepareAsync()
+            mediaPlayer?.apply {
+                setDataSource(surahAudioUrlBySurah)
+                setOnPreparedListener(this@SurahFragment)
+                prepareAsync()
+            }
         }
     }
 

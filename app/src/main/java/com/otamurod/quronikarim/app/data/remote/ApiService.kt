@@ -20,6 +20,9 @@ interface ApiService {
     // get surah audio
     // http://api.alquran.cloud/surah/1/ar.alafasy
     @GET(value = "surah/{number}/{identifier}")
-    suspend fun getSurahAudioFromAPI(@Path("number") number: Int, @Path("identifier") identifier:String): Response<MainResponse<SurahAudioDto>>
+    suspend fun getSurahAudioFromAPI(
+        @Path("number") number: Int,
+        @Path("identifier") identifier: String
+    ): Response<MainResponse<SurahAudioDto>>
 
 }

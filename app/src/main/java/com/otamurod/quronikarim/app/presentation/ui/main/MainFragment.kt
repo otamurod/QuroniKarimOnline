@@ -1,6 +1,5 @@
 package com.otamurod.quronikarim.app.presentation.ui.main
 
-import MainViewModelFactory
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,24 +9,22 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.otamurod.quronikarim.R
-import com.otamurod.quronikarim.app.data.remote.ApiClient.Companion.apiService
-import com.otamurod.quronikarim.app.data.repository.RepositoryImpl
-import com.otamurod.quronikarim.app.data.repository.datasource.SurahDataSourceImpl
 import com.otamurod.quronikarim.app.presentation.ui.adapter.MainAdapter
 import com.otamurod.quronikarim.app.presentation.utils.checkNetworkStatus
 import com.otamurod.quronikarim.databinding.FragmentMainBinding
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-private lateinit var viewModel: MainViewModel
-
+@AndroidEntryPoint
 class MainFragment : Fragment() {
     lateinit var binding: FragmentMainBinding
     lateinit var mainAdapter: MainAdapter
+    private val viewModel: MainViewModel by viewModels()
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onStart() {
@@ -67,14 +64,6 @@ class MainFragment : Fragment() {
     }
 
     private fun initViewModel() {
-        val dataSourceImpl = SurahDataSourceImpl(apiService)
-        val repositoryImpl = RepositoryImpl(dataSourceImpl)
-        viewModel =
-            ViewModelProvider(
-                this,
-                MainViewModelFactory(repositoryImpl)
-            )[MainViewModel::class.java]
-
         viewModel.surahs.observe(viewLifecycleOwner) { data ->
             binding.progressBar.visibility = View.GONE
             mainAdapter.setUpdatedData(data)
@@ -84,12 +73,12 @@ class MainFragment : Fragment() {
         }
     }
 
+    fun requestAllSurahs() {
+        viewModel.getSurahesCall()
+    }
+
     override fun onResume() {
         super.onResume()
         binding.progressBar.visibility = View.VISIBLE
     }
-}
-
-fun requestAllSurahs() {
-    viewModel.getSurahesCall()
 }

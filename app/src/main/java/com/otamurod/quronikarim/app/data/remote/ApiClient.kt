@@ -13,6 +13,7 @@ class ApiClient {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
         }
+
         val apiService = getRetrofitInstance().create(ApiService::class.java)
     }
 }

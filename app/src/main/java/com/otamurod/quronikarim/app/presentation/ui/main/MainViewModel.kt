@@ -7,13 +7,16 @@ import androidx.lifecycle.viewModelScope
 import com.otamurod.quronikarim.app.data.repository.RepositoryImpl
 import com.otamurod.quronikarim.app.domain.model.surah.Surah
 import com.otamurod.quronikarim.app.presentation.utils.SingleLiveEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class MainViewModel(
+@HiltViewModel
+class MainViewModel @Inject constructor(
     private val repositoryImpl: RepositoryImpl
 ) : ViewModel() {
     private var _surahs = MutableLiveData<List<Surah>>()
