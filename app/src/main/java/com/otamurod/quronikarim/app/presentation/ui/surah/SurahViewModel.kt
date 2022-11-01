@@ -1,9 +1,6 @@
 package com.otamurod.quronikarim.app.presentation.ui.surah
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.otamurod.quronikarim.app.data.repository.RepositoryImpl
 import com.otamurod.quronikarim.app.domain.model.audio.SurahAudio
 import com.otamurod.quronikarim.app.domain.model.detail.SurahDetail
@@ -16,7 +13,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SurahViewModel @Inject constructor(
-    private val repository: Repository
+    private val repository: Repository,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private var _surahDetail = MutableLiveData<SurahDetail>()
     val surahDetail: LiveData<SurahDetail> = _surahDetail

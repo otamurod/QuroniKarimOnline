@@ -10,6 +10,9 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.LinearInterpolator
+import android.view.animation.RotateAnimation
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -17,7 +20,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
-import com.otamurod.quronikarim.R
 import com.otamurod.quronikarim.app.domain.model.audio.SurahAudio
 import com.otamurod.quronikarim.app.domain.model.surah.Surah
 import com.otamurod.quronikarim.app.presentation.utils.checkNetworkStatus
@@ -26,6 +28,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
+
 
 private const val TAG = "SurahFragment"
 
@@ -74,6 +77,7 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.progressBar.visibility = View.VISIBLE
         surah = args.surah
         identifier = args.identifier
 
@@ -98,13 +102,15 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
         }
         // Play Audio Button Listener
         binding.playBtn.setOnClickListener {
-            if (mediaPlayer == null) {
-                setMedia()
+            if (!isAudioObserved) {
+                Toast.makeText(requireContext(), "Please Download Audio", Toast.LENGTH_SHORT).show()
+            } else if (mediaPlayer == null) {
+                // do something
             } else if (mediaPlayer?.isPlaying!! && isAudioObserved) { // playing, icon is pause
-                binding.playBtn.setImageResource(R.drawable.ic_play_arrow)
+                binding.playBtn.setImageResource(com.otamurod.quronikarim.R.drawable.ic_play_arrow)
                 mediaPlayer?.pause()
             } else if (!mediaPlayer?.isPlaying!! && isAudioObserved) { // not playing, icon is play
-                binding.playBtn.setImageResource(R.drawable.ic_pause)
+                binding.playBtn.setImageResource(com.otamurod.quronikarim.R.drawable.ic_pause)
                 mediaPlayer?.start()
             }
         }
@@ -186,6 +192,7 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
             ayahsDurations.add(timeInMillisecond) //retrieve ayah audio duration
         }
         currentDuration = ayahsDurations[0]
+        stringBuilder.clear()
         stringBuilder.append(listOfAyahsText[0])
         binding.surah.text = stringBuilder.toString() // show first ayah text in the beginning
     }
@@ -218,9 +225,9 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
 
                 /** Show play button if player is paused */
                 if (!mediaPlayer?.isPlaying!!) {
-                    binding.playBtn.setImageResource(R.drawable.ic_play_arrow) //set play icon if music finished
+                    binding.playBtn.setImageResource(com.otamurod.quronikarim.R.drawable.ic_play_arrow) //set play icon if music finished
                 } else {
-                    binding.playBtn.setImageResource(R.drawable.ic_pause)   // Show pause button if player is playing
+                    binding.playBtn.setImageResource(com.otamurod.quronikarim.R.drawable.ic_pause)   // Show pause button if player is playing
                     if (isSeekBarChanged) {
                         stringBuilder.clear()
                         for (ayahText in listOfAyahsText) {
@@ -257,11 +264,29 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
     override fun onPrepared(mp: MediaPlayer?) {
         isAudioObserved = true
         progressDialog!!.cancel()
-        binding.download.setImageResource(R.drawable.ic_downloaded)
+        animateDownloadButton()
         endTime = returnTime(mediaPlayer!!.duration)
         binding.totalTime.text = "/$endTime"
         binding.seekbar.max = mediaPlayer?.duration!!
         handler.postDelayed(runnable, 100)
+    }
+
+    private fun animateDownloadButton() {
+        binding.download.isClickable = false
+        binding.download.isEnabled = false
+
+        val rotate = RotateAnimation(
+            0f,
+            360f,
+            Animation.RELATIVE_TO_SELF,
+            0.5f,
+            Animation.RELATIVE_TO_SELF,
+            0.5f
+        )
+        rotate.duration = 1000
+        rotate.interpolator = LinearInterpolator()
+        binding.download.startAnimation(rotate)
+        binding.download.setImageResource(com.otamurod.quronikarim.R.drawable.ic_downloaded)
     }
 
     private fun releaseMP() {

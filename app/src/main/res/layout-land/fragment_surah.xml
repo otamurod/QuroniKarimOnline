@@ -28,12 +28,12 @@
                 android:layout_height="wrap_content"
                 android:background="@color/grey_500"
                 android:orientation="horizontal"
-                android:padding="5dp">
+                android:padding="4dp">
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/image_thumb"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
                     android:layout_margin="4dp"
                     android:padding="1dp"
                     app:cardCornerRadius="40dp"
@@ -62,7 +62,7 @@
                     android:textSize="20sp"
                     app:layout_constraintBottom_toTopOf="@id/englishNameTranslation"
                     app:layout_constraintLeft_toRightOf="@id/image_thumb"
-                    app:layout_constraintTop_toBottomOf="@id/name" />
+                    app:layout_constraintTop_toTopOf="@id/image_thumb" />
 
                 <TextView
                     android:id="@+id/name"
@@ -70,10 +70,10 @@
                     android:layout_height="wrap_content"
                     android:text="Name"
                     android:textColor="@color/purple_700"
-                    android:textSize="28sp"
-                    app:layout_constraintBottom_toTopOf="@id/englishName"
+                    android:textSize="26sp"
+                    android:layout_marginRight="15dp"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="@id/englishName" />
 
                 <TextView
                     android:id="@+id/englishNameTranslation"
@@ -83,9 +83,9 @@
                     android:text="englishNameTranslation"
                     android:textColor="@color/purple_700"
                     android:textSize="20sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toLeftOf="@id/image_thumb"
-                    app:layout_constraintTop_toBottomOf="@id/image_thumb" />
+                    app:layout_constraintBottom_toBottomOf="@id/image_thumb"
+                    app:layout_constraintLeft_toLeftOf="@id/englishName"
+                    app:layout_constraintTop_toBottomOf="@id/englishName" />
 
                 <TextView
                     android:id="@+id/numberOfAyahs"
@@ -95,7 +95,7 @@
                     android:textColor="@color/black"
                     android:textSize="20sp"
                     app:layout_constraintBottom_toBottomOf="@id/englishNameTranslation"
-                    app:layout_constraintRight_toRightOf="parent" />
+                    app:layout_constraintRight_toRightOf="@id/name" />
 
                 <ProgressBar
                     android:id="@+id/progressBar"
@@ -114,7 +114,8 @@
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_margin="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
             android:background="@color/grey_500"
             android:fillViewport="true"
             android:padding="4dp"
@@ -136,7 +137,7 @@
             android:id="@+id/decreaseText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
+            android:layout_marginLeft="10dp"
             android:layout_marginBottom="5dp"
             android:background="@drawable/bg2"
             android:backgroundTint="@color/white"
@@ -161,14 +162,11 @@
             android:id="@+id/player"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginBottom="15dp"
+            android:layout_margin="5dp"
             android:background="@drawable/bg2"
             android:gravity="center"
             android:orientation="horizontal"
-            android:padding="10dp"
+            android:padding="5dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -208,7 +206,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:layout_weight="5"
+                android:layout_weight="3"
                 android:progressBackgroundTint="#04760B"
                 android:progressTint="@color/black"
                 android:thumbTint="@color/black" />
