@@ -1,8 +1,8 @@
 package com.otamurod.quronikarim.app.data.remote.dto.audio
 
 data class AyahAudioDto(
-    val audio: String,
-    val audioSecondary: List<String>,
+    val audio: String?,
+    val audioSecondary: List<String>?,
     val hizbQuarter: Int,
     val juz: Int,
     val manzil: Int,

@@ -46,7 +46,7 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
     private var audioDuration: Int = 0
     private var listOfAyahsText = ArrayList<String>()
     private var ayahsDurations = ArrayList<Int>()
-    private var currentDuration = 0
+    private var currentDuration: Int? = null
     private var i = 1
     private var stringBuilder = StringBuilder()
     private var identifier = ""
@@ -60,9 +60,7 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
         super.onStart()
         // Make API Call
         if (checkNetworkStatus(requireContext())) {
-            lifecycleScope.launch(Dispatchers.IO) {
-                viewModel.getSurahAudioCall(surah.number, identifier)
-            }
+            viewModel.getSurahAudioCall(surah.number, identifier)
         }
     }
 
@@ -164,6 +162,8 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
             "https://media.blubrry.com/muslim_central_quran/podcasts.qurancentral.com/mishary-rashid-alafasy/mishary-rashid-alafasy-%03d-muslimcentral.com.mp3",
             surah.number
         )
+//        surahAudioUrlBySurah = "https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/1.mp3"
+//        surahAudioUrlBySurah = "https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3"
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -173,7 +173,7 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
                 setAudioInfo(surahAudio)
                 binding.progressBar.visibility = View.GONE
             } else {
-                Toast.makeText(requireContext(), "surahAudio: $surahAudio", Toast.LENGTH_SHORT)
+                Toast.makeText(requireContext(), "surah: $surahAudio", Toast.LENGTH_SHORT)
                     .show()
             }
         }
@@ -182,19 +182,30 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
     private fun setAudioInfo(surahAudio: SurahAudio) {
         binding.numberOfAyahs.text = "${surahAudio.numberOfAyahs} ayahs"
         var ayahNumber = 1
+        var audio = true
+        stringBuilder.clear()
         for (ayahAudio in surahAudio.ayahs) {
             listOfAyahsText.add(" (${ayahNumber++}) \t${ayahAudio.text}\n") // retrieve ayah text
-
             val retriever = MediaMetadataRetriever()
-            retriever.setDataSource(ayahAudio.audio, HashMap())
-            val timeInMillisecond =
-                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!.toInt()
-            ayahsDurations.add(timeInMillisecond) //retrieve ayah audio duration
+
+            if (ayahAudio.audio != null) {
+                retriever.setDataSource(ayahAudio.audio, HashMap())
+                val timeInMillisecond =
+                    retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
+                        .toInt()
+                ayahsDurations.add(timeInMillisecond) //retrieve ayah audio duration
+            } else {
+                audio = false
+                stringBuilder.append(listOfAyahsText[ayahNumber - 2])
+            }
         }
-        currentDuration = ayahsDurations[0]
-        stringBuilder.clear()
-        stringBuilder.append(listOfAyahsText[0])
-        binding.surah.text = stringBuilder.toString() // show first ayah text in the beginning
+        if (!audio) {
+            binding.surah.text = stringBuilder.toString()
+        } else {
+            currentDuration = ayahsDurations[0]
+            stringBuilder.append(listOfAyahsText[0])
+            binding.surah.text = stringBuilder.toString() // show first ayah text in the beginning
+        }
     }
 
     private fun setSurahInfo(surah: Surah) {
@@ -237,11 +248,11 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
                     }
                 }
                 /** set ayah text if duration matches */
-                if (currentTime == returnTime(currentDuration) && !isSeekBarChanged) {
+                if (currentDuration != null && currentTime == returnTime(currentDuration) && !isSeekBarChanged) {
                     if (i < listOfAyahsText.size) {
                         stringBuilder.append(listOfAyahsText[i])
                         binding.surah.text = stringBuilder.toString()
-                        currentDuration += ayahsDurations[i]
+                        currentDuration = currentDuration!! + ayahsDurations[i]
                         i++
                     }
                 }
