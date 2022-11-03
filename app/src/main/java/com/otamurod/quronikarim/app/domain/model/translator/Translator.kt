@@ -1,6 +1,10 @@
-package com.otamurod.quronikarim.app.domain.model.identifier
+package com.otamurod.quronikarim.app.domain.model.translator
 
-data class Identifier(
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class Translator(
 //    val direction: String,
     val englishName: String,
 //    val format: String,
@@ -8,4 +12,4 @@ data class Identifier(
     val language: String,
 //    val name: String,
 //    val type: String
-)
+):Parcelable

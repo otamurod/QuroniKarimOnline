@@ -1,15 +1,13 @@
 package com.otamurod.quronikarim.app.data.repository
 
 import android.util.Log
-import com.otamurod.quronikarim.app.data.mapper.toIdentifier
-import com.otamurod.quronikarim.app.data.mapper.toSurah
-import com.otamurod.quronikarim.app.data.mapper.toSurahAudio
-import com.otamurod.quronikarim.app.data.mapper.toSurahDetail
+import com.otamurod.quronikarim.app.data.mapper.*
 import com.otamurod.quronikarim.app.data.repository.datasource.SurahDataSource
 import com.otamurod.quronikarim.app.domain.model.audio.SurahAudio
 import com.otamurod.quronikarim.app.domain.model.detail.SurahDetail
-import com.otamurod.quronikarim.app.domain.model.identifier.Identifier
+import com.otamurod.quronikarim.app.domain.model.reciter.Reciter
 import com.otamurod.quronikarim.app.domain.model.surah.Surah
+import com.otamurod.quronikarim.app.domain.model.translator.Translator
 import com.otamurod.quronikarim.app.domain.repository.Repository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -62,20 +60,36 @@ class RepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getTranslations(): Flow<List<Identifier>> = flow {
+    override suspend fun getTranslations(): Flow<List<Translator>> = flow {
         try {
             val response = surahDataSource.getTranslations()
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
                     val data = body.data
-                    emit(data.map { it.toIdentifier() })
+                    emit(data.map { it.toTranslator() })
                 }
             } else {
-                Log.d(TAG, "getSurahAudio: ${response.code()}")
+                Log.d(TAG, "getTranslations: ${response.code()}")
             }
         } catch (e: Exception) {
-            Log.d(TAG, "getSurahAudio: ${e.message}")
+            Log.d(TAG, "getTranslations: ${e.message}")
+        }
+    }
+
+    override suspend fun getReciters(url: String): Flow<List<Reciter>> = flow {
+        try {
+            val response = surahDataSource.getReciters(url)
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    emit(body.map { it.toReciter() })
+                }
+            } else {
+                Log.d(TAG, "getReciters: ${response.code()}")
+            }
+        } catch (e: Exception) {
+            Log.d(TAG, "getReciters: ${e.message}")
         }
     }
 }

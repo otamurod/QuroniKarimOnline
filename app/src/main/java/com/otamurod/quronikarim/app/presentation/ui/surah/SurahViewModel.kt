@@ -1,7 +1,6 @@
 package com.otamurod.quronikarim.app.presentation.ui.surah
 
 import androidx.lifecycle.*
-import com.otamurod.quronikarim.app.data.repository.RepositoryImpl
 import com.otamurod.quronikarim.app.domain.model.audio.SurahAudio
 import com.otamurod.quronikarim.app.domain.model.detail.SurahDetail
 import com.otamurod.quronikarim.app.domain.repository.Repository
@@ -30,7 +29,7 @@ class SurahViewModel @Inject constructor(
         }
     }
 
-    fun getSurahAudioCall(surahNumber: Int, identifier: String) {
+    fun getSurahTranslation(surahNumber: Int, identifier: String) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getSurahAudio(surahNumber, identifier)
                 .collectLatest {

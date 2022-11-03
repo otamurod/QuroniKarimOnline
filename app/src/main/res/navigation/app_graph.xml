@@ -11,6 +11,7 @@
         android:label="fragment_recycler_list"
         tools:layout="@layout/fragment_main">
 
+
         <action
             android:id="@+id/action_MainFragment_to_surahFragment"
             app:destination="@id/surahFragment" />
@@ -24,7 +25,10 @@
             android:name="surah"
             app:argType="com.otamurod.quronikarim.app.domain.model.surah.Surah" />
         <argument
-            android:name="identifier"
-            app:argType="string" />
+            android:name="translator"
+            app:argType="com.otamurod.quronikarim.app.domain.model.translator.Translator" />
+        <argument
+            android:name="reciter"
+            app:argType="com.otamurod.quronikarim.app.domain.model.reciter.Reciter" />
     </fragment>
 </navigation>

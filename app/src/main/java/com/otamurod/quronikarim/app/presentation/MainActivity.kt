@@ -1,9 +1,7 @@
 package com.otamurod.quronikarim.app.presentation
 
 import android.os.Bundle
-import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
-import com.otamurod.quronikarim.R
 import com.otamurod.quronikarim.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 

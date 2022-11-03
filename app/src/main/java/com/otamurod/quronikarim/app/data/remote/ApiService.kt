@@ -3,25 +3,26 @@ package com.otamurod.quronikarim.app.data.remote
 import com.otamurod.quronikarim.app.data.remote.dto.MainResponse
 import com.otamurod.quronikarim.app.data.remote.dto.audio.SurahAudioDto
 import com.otamurod.quronikarim.app.data.remote.dto.details.SurahDetailDto
-import com.otamurod.quronikarim.app.data.remote.dto.identifier.IdentifierDto
-import com.otamurod.quronikarim.app.domain.model.identifier.Identifier
+import com.otamurod.quronikarim.app.data.remote.dto.reciter.ReciterDto
 import com.otamurod.quronikarim.app.data.remote.dto.surah.SurahDto
+import com.otamurod.quronikarim.app.data.remote.dto.translator.TranslatorDto
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Url
 
 interface ApiService {
-    // get all surahs list
+    // get all surahes list
     // http://api.alquran.cloud/surah
     @GET("surah")
-    suspend fun getSurahFromAPI(): Response<MainResponse<List<SurahDto>>>
+    suspend fun getAllSurahesFromAPI(): Response<MainResponse<List<SurahDto>>>
 
     // get a single surah
     // http://api.alquran.cloud/surah/1
     @GET(value = "surah/{number}")
     suspend fun getSurahDetailFromAPI(@Path("number") number: Int): Response<MainResponse<SurahDetailDto>>
 
-    // get surah audio
+    // get a surah with ayah-by-ayah audios
     // http://api.alquran.cloud/surah/1/ar.alafasy
     @GET(value = "surah/{number}/{identifier}")
     suspend fun getSurahAudioFromAPI(
@@ -29,8 +30,12 @@ interface ApiService {
         @Path("identifier") identifier: String
     ): Response<MainResponse<SurahAudioDto>>
 
-    // get translations
+    // get list of translations
     // http://api.alquran.cloud/v1/edition/type/translation
     @GET("edition/type/translation")
-    suspend fun getTranslationsFromAPI(): Response<MainResponse<List<IdentifierDto>>>
+    suspend fun getTranslationsFromAPI(): Response<MainResponse<List<TranslatorDto>>>
+
+    // get list of reciters
+    @GET
+    suspend fun getRecitersFromAPI(@Url url: String): Response<List<ReciterDto>>
 }

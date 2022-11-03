@@ -4,7 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.otamurod.quronikarim.app.domain.model.identifier.Identifier
+import com.otamurod.quronikarim.app.domain.model.reciter.Reciter
+import com.otamurod.quronikarim.app.domain.model.translator.Translator
 import com.otamurod.quronikarim.app.domain.model.surah.Surah
 import com.otamurod.quronikarim.app.domain.repository.Repository
 import com.otamurod.quronikarim.app.presentation.utils.SingleLiveEvent
@@ -23,8 +24,11 @@ class MainViewModel @Inject constructor(
     private var _surahs = MutableLiveData<List<Surah>>()
     val surahs: LiveData<List<Surah>> = _surahs
 
-    private var _identifiers = MutableLiveData<List<Identifier>>()
-    val identifier: LiveData<List<Identifier>> = _identifiers
+    private var _translators = MutableLiveData<List<Translator>>()
+    val translator: LiveData<List<Translator>> = _translators
+
+    private var _reciters = MutableLiveData<List<Reciter>>()
+    val reciter: LiveData<List<Reciter>> = _reciters
 
     private val langs = arrayListOf(
         "ar",
@@ -81,14 +85,26 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun getIdentifiersCall() {
+    fun getTranslatorsCall() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getTranslations().catch {
                 withContext(Dispatchers.Main) {
                     _error.call()
                 }
             }.collectLatest {
-                _identifiers.postValue(it)
+                _translators.postValue(it)
+            }
+        }
+    }
+
+    fun getRecitersCall() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getReciters("https://raw.githubusercontent.com/islamic-network/cdn/master/info/cdn_surah_audio.json").catch {
+                withContext(Dispatchers.Main) {
+                    _error.call()
+                }
+            }.collectLatest {
+                _reciters.postValue(it)
             }
         }
     }

@@ -1,6 +1,6 @@
-package com.otamurod.quronikarim.app.data.remote.dto.identifier
+package com.otamurod.quronikarim.app.data.remote.dto.translator
 
-data class IdentifierDto(
+data class TranslatorDto(
     val direction: String,
     val englishName: String,
     val format: String,

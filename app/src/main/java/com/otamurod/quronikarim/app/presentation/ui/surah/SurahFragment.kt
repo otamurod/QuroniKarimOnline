@@ -1,12 +1,12 @@
 package com.otamurod.quronikarim.app.presentation.ui.surah
 
+import android.app.DownloadManager
 import android.app.ProgressDialog
+import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.net.Uri
+import android.os.*
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,24 +20,32 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
+import com.otamurod.quronikarim.R
 import com.otamurod.quronikarim.app.domain.model.audio.SurahAudio
+import com.otamurod.quronikarim.app.domain.model.reciter.Reciter
 import com.otamurod.quronikarim.app.domain.model.surah.Surah
+import com.otamurod.quronikarim.app.domain.model.translator.Translator
 import com.otamurod.quronikarim.app.presentation.utils.checkNetworkStatus
+import com.otamurod.quronikarim.app.presentation.utils.snackBar
 import com.otamurod.quronikarim.databinding.FragmentSurahBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
+import java.io.File
 
 
 private const val TAG = "SurahFragment"
 
 @AndroidEntryPoint
-class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
+class SurahFragment : Fragment() {
 
     lateinit var binding: FragmentSurahBinding
     private val viewModel: SurahViewModel by viewModels()
     private lateinit var surah: Surah
+    private lateinit var translator: Translator
+    private lateinit var reciter: Reciter
     private var mediaPlayer: MediaPlayer? = null
     private var surahAudioUrlBySurah: String? = null
     lateinit var handler: Handler
@@ -49,7 +57,6 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
     private var currentDuration: Int? = null
     private var i = 1
     private var stringBuilder = StringBuilder()
-    private var identifier = ""
     private var isSeekBarChanged = false
     private var isAudioObserved = false
     private var progressDialog: ProgressDialog? = null
@@ -60,7 +67,7 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
         super.onStart()
         // Make API Call
         if (checkNetworkStatus(requireContext())) {
-            viewModel.getSurahAudioCall(surah.number, identifier)
+            viewModel.getSurahTranslation(surah.number, translator.identifier)
         }
     }
 
@@ -76,10 +83,11 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.progressBar.visibility = View.VISIBLE
+        releaseMP()
         surah = args.surah
-        identifier = args.identifier
+        translator = args.translator
+        reciter = args.reciter
 
-        prepareAudioUrl()
         setSurahInfo(surah)
         initViewModel() // init viewModel
 
@@ -94,9 +102,19 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
             binding.surah.textSize = size
         }
 
+        var audioPath =
+            "/storage/emulated/0/Music/${getString(R.string.app_name)}/${reciter.identifier}/${surah.number}.mp3"
+        if (setMedia(audioPath)) {
+            binding.download.setImageResource(R.drawable.ic_downloaded)
+            binding.download.isClickable = false
+            binding.download.isEnabled = false
+            isAudioObserved = true
+        }
+        // Download audio on clicked
         binding.download.setOnClickListener {
-            showProgressDialog()
-            setMedia()
+            lifecycleScope.launch {
+                audioPath = downloadAudio(surah.number, reciter.identifier)
+            }
         }
         // Play Audio Button Listener
         binding.playBtn.setOnClickListener {
@@ -104,6 +122,7 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
                 Toast.makeText(requireContext(), "Please Download Audio", Toast.LENGTH_SHORT).show()
             } else if (mediaPlayer == null) {
                 // do something
+                setMedia(audioPath)
             } else if (mediaPlayer?.isPlaying!! && isAudioObserved) { // playing, icon is pause
                 binding.playBtn.setImageResource(com.otamurod.quronikarim.R.drawable.ic_play_arrow)
                 mediaPlayer?.pause()
@@ -112,7 +131,6 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
                 mediaPlayer?.start()
             }
         }
-
         binding.seekbar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
@@ -150,27 +168,12 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
         })
     }
 
-    private fun showProgressDialog() {
-        progressDialog = ProgressDialog.show(
-            requireContext(), "",
-            "Loading. Please wait...", true
-        )
-    }
-
-    private fun prepareAudioUrl() {
-        surahAudioUrlBySurah = String.format(
-            "https://media.blubrry.com/muslim_central_quran/podcasts.qurancentral.com/mishary-rashid-alafasy/mishary-rashid-alafasy-%03d-muslimcentral.com.mp3",
-            surah.number
-        )
-//        surahAudioUrlBySurah = "https://cdn.islamic.network/quran/audio-surah/128/ar.alafasy/1.mp3"
-//        surahAudioUrlBySurah = "https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3"
-    }
-
     @RequiresApi(Build.VERSION_CODES.N)
     private fun initViewModel() {
         viewModel.surahAudio.observe(viewLifecycleOwner) { surahAudio ->
             if (surahAudio != null) {
-                setAudioInfo(surahAudio)
+                val audio = setAudioInfo(surahAudio)
+                prepareAudioUrl(audio)
                 binding.progressBar.visibility = View.GONE
             } else {
                 Toast.makeText(requireContext(), "surah: $surahAudio", Toast.LENGTH_SHORT)
@@ -179,10 +182,61 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
         }
     }
 
-    private fun setAudioInfo(surahAudio: SurahAudio) {
+    private suspend fun downloadAudio(surahNumber: Int, reciter: String): String {
+        val filename = "$surahNumber.mp3"
+        val job = GlobalScope.launch(Dispatchers.IO) {
+            val direct = File(
+                resources.getString(R.string.app_name) + "/"
+            )
+
+            if (!direct.exists()) {
+                direct.mkdir()
+            }
+
+            val dm = requireContext().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            val downloadUri: Uri = Uri.parse(surahAudioUrlBySurah)
+            val request = DownloadManager.Request(downloadUri)
+            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+                .setAllowedOverRoaming(false)
+                .setTitle(filename)
+                .setMimeType("audio/mpeg")
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED or DownloadManager.Request.VISIBILITY_VISIBLE)
+                .setDestinationInExternalPublicDir(
+                    Environment.DIRECTORY_MUSIC,
+                    File.separator + getString(R.string.app_name) + File.separator.toString() + reciter + File.separator.toString() + filename
+                )
+            dm.enqueue(request)
+        }
+        // wait for job completes
+        job.join()
+        // show snackBar if job finished
+        if (job.isCompleted) {
+            snackBar(R.string.downloading)
+            isAudioObserved = true
+        }
+        return "/storage/emulated/0/Music/${getString(R.string.app_name)}/$reciter/$filename"
+    }
+
+    private fun showProgressDialog() {
+        progressDialog = ProgressDialog.show(
+            requireContext(), "",
+            "Loading. Please wait...", true
+        )
+    }
+
+    private fun prepareAudioUrl(audio: Boolean) {
+        val identifier = if (!audio) reciter.identifier else translator.identifier
+        surahAudioUrlBySurah = String.format(
+            "https://cdn.islamic.network/quran/audio-surah/128/%s/%d.mp3",
+            identifier,
+            surah.number
+        )
+    }
+
+    private fun setAudioInfo(surahAudio: SurahAudio): Boolean {
+        var audio = true
         binding.numberOfAyahs.text = "${surahAudio.numberOfAyahs} ayahs"
         var ayahNumber = 1
-        var audio = true
         stringBuilder.clear()
         for (ayahAudio in surahAudio.ayahs) {
             listOfAyahsText.add(" (${ayahNumber++}) \t${ayahAudio.text}\n") // retrieve ayah text
@@ -206,6 +260,7 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
             stringBuilder.append(listOfAyahsText[0])
             binding.surah.text = stringBuilder.toString() // show first ayah text in the beginning
         }
+        return audio
     }
 
     private fun setSurahInfo(surah: Surah) {
@@ -236,9 +291,9 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
 
                 /** Show play button if player is paused */
                 if (!mediaPlayer?.isPlaying!!) {
-                    binding.playBtn.setImageResource(com.otamurod.quronikarim.R.drawable.ic_play_arrow) //set play icon if music finished
+                    binding.playBtn.setImageResource(R.drawable.ic_play_arrow) //set play icon if music finished
                 } else {
-                    binding.playBtn.setImageResource(com.otamurod.quronikarim.R.drawable.ic_pause)   // Show pause button if player is playing
+                    binding.playBtn.setImageResource(R.drawable.ic_pause)   // Show pause button if player is playing
                     if (isSeekBarChanged) {
                         stringBuilder.clear()
                         for (ayahText in listOfAyahsText) {
@@ -261,25 +316,31 @@ class SurahFragment : Fragment(), MediaPlayer.OnPreparedListener {
         }
     }
 
-    private fun setMedia() {
+    private fun setMedia(musicPath: String): Boolean {
         mediaPlayer = MediaPlayer()
-        lifecycleScope.launch(Dispatchers.IO) {
+        var musicExists = false
+        try {
             mediaPlayer?.apply {
-                setDataSource(surahAudioUrlBySurah)
-                setOnPreparedListener(this@SurahFragment)
-                prepareAsync()
+                setDataSource(musicPath)
+                prepare()
+                onPrepared()
+                musicExists = true
             }
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+        } catch (e: Exception) {
+            println("Exception of type : $e");
+            e.printStackTrace()
         }
+        return musicExists
     }
 
-    override fun onPrepared(mp: MediaPlayer?) {
-        isAudioObserved = true
-        progressDialog!!.cancel()
-        animateDownloadButton()
+    private fun onPrepared() {
         endTime = returnTime(mediaPlayer!!.duration)
         binding.totalTime.text = "/$endTime"
         binding.seekbar.max = mediaPlayer?.duration!!
         handler.postDelayed(runnable, 100)
+        animateDownloadButton()
     }
 
     private fun animateDownloadButton() {

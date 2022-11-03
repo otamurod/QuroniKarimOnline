@@ -4,8 +4,8 @@ import com.otamurod.quronikarim.app.data.remote.ApiService
 import com.otamurod.quronikarim.app.data.remote.dto.MainResponse
 import com.otamurod.quronikarim.app.data.remote.dto.audio.SurahAudioDto
 import com.otamurod.quronikarim.app.data.remote.dto.details.SurahDetailDto
-import com.otamurod.quronikarim.app.data.remote.dto.identifier.IdentifierDto
-import com.otamurod.quronikarim.app.domain.model.identifier.Identifier
+import com.otamurod.quronikarim.app.data.remote.dto.reciter.ReciterDto
+import com.otamurod.quronikarim.app.data.remote.dto.translator.TranslatorDto
 import com.otamurod.quronikarim.app.data.remote.dto.surah.SurahDto
 import retrofit2.Response
 import javax.inject.Inject
@@ -14,7 +14,7 @@ class SurahDataSourceImpl @Inject constructor(
     private val apiService: ApiService
 ) : SurahDataSource {
     override suspend fun getSurahList(): Response<MainResponse<List<SurahDto>>> {
-        return apiService.getSurahFromAPI()
+        return apiService.getAllSurahesFromAPI()
     }
 
     override suspend fun getSurahDetail(number: Int): Response<MainResponse<SurahDetailDto>> {
@@ -28,7 +28,11 @@ class SurahDataSourceImpl @Inject constructor(
         return apiService.getSurahAudioFromAPI(number, identifier)
     }
 
-    override suspend fun getTranslations(): Response<MainResponse<List<IdentifierDto>>> {
+    override suspend fun getTranslations(): Response<MainResponse<List<TranslatorDto>>> {
         return apiService.getTranslationsFromAPI()
+    }
+
+    override suspend fun getReciters(url:String): Response<List<ReciterDto>> {
+        return apiService.getRecitersFromAPI(url)
     }
 }
