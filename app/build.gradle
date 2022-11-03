@@ -80,5 +80,7 @@ dependencies {
 
     // permissions
     implementation 'com.karumi:dexter:6.2.3'
+    // gson
+    implementation 'com.google.code.gson:gson:2.8.8'
 
 }

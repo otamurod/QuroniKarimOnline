@@ -16,6 +16,7 @@ import android.view.animation.RotateAnimation
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -46,6 +47,7 @@ class SurahFragment : Fragment() {
     private lateinit var surah: Surah
     private lateinit var translator: Translator
     private lateinit var reciter: Reciter
+    private lateinit var language: String
     private var mediaPlayer: MediaPlayer? = null
     private var surahAudioUrlBySurah: String? = null
     lateinit var handler: Handler
@@ -71,6 +73,12 @@ class SurahFragment : Fragment() {
         }
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val activity = requireActivity() as AppCompatActivity
+        activity.supportActionBar?.hide()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -87,7 +95,7 @@ class SurahFragment : Fragment() {
         surah = args.surah
         translator = args.translator
         reciter = args.reciter
-
+        language = translator.language
         setSurahInfo(surah)
         initViewModel() // init viewModel
 
@@ -239,7 +247,11 @@ class SurahFragment : Fragment() {
         var ayahNumber = 1
         stringBuilder.clear()
         for (ayahAudio in surahAudio.ayahs) {
-            listOfAyahsText.add(" (${ayahNumber++}) \t${ayahAudio.text}\n") // retrieve ayah text
+            if (translator.language != "ar") {
+                listOfAyahsText.add("﴾${ayahNumber++}﴿ \t${ayahAudio.text}\n\n") // retrieve ayah text
+            } else {
+                listOfAyahsText.add(" ${ayahAudio.text} ﴿${ayahNumber++}﴾\n\n") // retrieve ayah text
+            }
             val retriever = MediaMetadataRetriever()
 
             if (ayahAudio.audio != null) {
@@ -256,7 +268,7 @@ class SurahFragment : Fragment() {
         if (!audio) {
             binding.surah.text = stringBuilder.toString()
         } else {
-            currentDuration = ayahsDurations[0]
+            currentDuration = ayahsDurations[0] + 2000
             stringBuilder.append(listOfAyahsText[0])
             binding.surah.text = stringBuilder.toString() // show first ayah text in the beginning
         }
@@ -269,6 +281,11 @@ class SurahFragment : Fragment() {
             name.text = surah.name
             surahNumber.text = surah.number.toString()
             englishNameTranslation.text = surah.englishNameTranslation
+            languageTv.text = language
+            translatorTv.text =
+                String.format("%s: %s", getString(R.string.translator), translator.englishName)
+            reciterTv.text =
+                String.format("%s: %s", getString(R.string.reciter), reciter.englishName)
         }
     }
 
@@ -303,7 +320,7 @@ class SurahFragment : Fragment() {
                     }
                 }
                 /** set ayah text if duration matches */
-                if (currentDuration != null && currentTime == returnTime(currentDuration) && !isSeekBarChanged) {
+                if (currentDuration != null && currentTime == returnTime(currentDuration) && !isSeekBarChanged && reciter.identifier == translator.identifier) {
                     if (i < listOfAyahsText.size) {
                         stringBuilder.append(listOfAyahsText[i])
                         binding.surah.text = stringBuilder.toString()
@@ -372,13 +389,13 @@ class SurahFragment : Fragment() {
         }
     }
 
-    override fun onResume() {
+    /*override fun onResume() {
         super.onResume()
         if (mediaPlayer != null) {
             binding.totalTime.text = "/$endTime"
             mediaPlayer!!.start()
         }
-    }
+    }*/
 
     override fun onDestroy() {
         super.onDestroy()

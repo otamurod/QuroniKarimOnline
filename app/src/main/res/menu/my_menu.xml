@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/translation" android:title="Translations"/>
-    <item android:id="@+id/recitation" android:title="Reciters"/>
+    <item
+        android:id="@+id/translation"
+        android:icon="@drawable/ic_translate"
+        android:title="Translations"
+        app:showAsAction="always"  />
+    <item
+        android:id="@+id/recitation"
+        android:icon="@drawable/ic_reciter"
+        android:title="Reciters"
+        app:showAsAction="ifRoom" />
 
 </menu>

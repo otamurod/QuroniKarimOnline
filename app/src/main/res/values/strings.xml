@@ -2,7 +2,10 @@
     <string name="app_name">Qur\'oni Karim Online</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="choose_translation">Choose Translation</string>
+    <string name="choose_language">Choose Language</string>
+    <string name="choose_translation">Choose Translation By</string>
     <string name="choose_recitation">Choose Reciter</string>
     <string name="downloading">Downloading...</string>
+    <string name="translator">By</string>
+    <string name="reciter">Reciter</string>
 </resources>

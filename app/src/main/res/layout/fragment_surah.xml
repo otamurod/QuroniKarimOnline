@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/aqua"
     android:fillViewport="true"
     tools:context=".app.presentation.ui.surah.SurahFragment">
 
@@ -11,33 +12,48 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <TextView
+            android:id="@+id/heading"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:background="@color/purple_700"
+            android:padding="10dp"
+            android:text="بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="30sp"
+            app:layout_constraintBottom_toTopOf="@id/card"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <androidx.cardview.widget.CardView
             android:id="@+id/card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             app:cardCornerRadius="15dp"
-            app:cardElevation="6dp"
-            app:layout_constraintBottom_toTopOf="@id/scrollView"
+            app:cardElevation="5dp"
+            app:layout_constraintBottom_toTopOf="@id/translator_tv"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/heading">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/grey_500"
+                android:background="#52379DF9"
                 android:orientation="horizontal"
-                android:padding="5dp">
+                android:padding="3dp">
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/image_thumb"
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
+                    android:layout_width="50sp"
+                    android:layout_height="50sp"
                     android:layout_margin="4dp"
                     android:padding="1dp"
-                    app:cardCornerRadius="40dp"
-                    app:cardElevation="6dp"
+                    app:cardCornerRadius="50dp"
+                    app:cardElevation="8dp"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
@@ -49,7 +65,7 @@
                         android:gravity="center"
                         android:text="114"
                         android:textColor="@color/white"
-                        android:textSize="30sp" />
+                        android:textSize="20sp" />
                 </androidx.cardview.widget.CardView>
 
                 <TextView
@@ -59,43 +75,44 @@
                     android:layout_marginLeft="10dp"
                     android:text="englishName"
                     android:textColor="@color/black"
-                    android:textSize="20sp"
-                    app:layout_constraintBottom_toTopOf="@id/englishNameTranslation"
+                    android:textSize="18sp"
                     app:layout_constraintLeft_toRightOf="@id/image_thumb"
-                    app:layout_constraintTop_toBottomOf="@id/name" />
+                    app:layout_constraintTop_toTopOf="@id/image_thumb" />
 
                 <TextView
                     android:id="@+id/name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginRight="10dp"
                     android:text="Name"
                     android:textColor="@color/purple_700"
-                    android:textSize="28sp"
-                    app:layout_constraintBottom_toTopOf="@id/englishName"
+                    android:textSize="25sp"
+                    app:layout_constraintBottom_toBottomOf="@id/englishName"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="@id/englishName" />
 
                 <TextView
                     android:id="@+id/englishNameTranslation"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="3dp"
                     android:text="englishNameTranslation"
                     android:textColor="@color/purple_700"
                     android:textSize="20sp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toLeftOf="@id/image_thumb"
-                    app:layout_constraintTop_toBottomOf="@id/image_thumb" />
+                    app:layout_constraintLeft_toLeftOf="@id/englishName"
+                    app:layout_constraintTop_toBottomOf="@id/englishName" />
 
                 <TextView
                     android:id="@+id/numberOfAyahs"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=""
+                    android:text="ayahs"
                     android:textColor="@color/black"
-                    android:textSize="20sp"
+                    android:textSize="15sp"
                     app:layout_constraintBottom_toBottomOf="@id/englishNameTranslation"
-                    app:layout_constraintRight_toRightOf="parent" />
+                    app:layout_constraintRight_toRightOf="@id/name" />
 
                 <ProgressBar
                     android:id="@+id/progressBar"
@@ -110,18 +127,62 @@
 
         </androidx.cardview.widget.CardView>
 
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="15dp"
+            app:cardCornerRadius="50dp"
+            app:layout_constraintBottom_toBottomOf="@id/decreaseText"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/decreaseText">
+
+            <TextView
+                android:id="@+id/language_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:padding="8dp"
+                android:text="UZ"
+                android:textAllCaps="true"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/translator_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="Translator"
+            android:textColor="@color/black"
+            android:textSize="17sp"
+            app:layout_constraintBottom_toTopOf="@id/reciter_tv"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/card" />
+
+        <TextView
+            android:id="@+id/reciter_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reciter"
+            android:textColor="@color/black"
+            android:textSize="17sp"
+            app:layout_constraintBottom_toTopOf="@id/scrollView"
+            app:layout_constraintLeft_toLeftOf="@id/translator_tv"
+            app:layout_constraintTop_toBottomOf="@id/translator_tv" />
+
         <ScrollView
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_margin="5dp"
-            android:background="@color/grey_500"
             android:fillViewport="true"
             android:padding="4dp"
             app:layout_constraintBottom_toTopOf="@id/player"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/card">
+            app:layout_constraintTop_toBottomOf="@id/reciter_tv">
 
             <TextView
                 android:id="@+id/surah"
@@ -129,7 +190,7 @@
                 android:layout_height="wrap_content"
                 android:text="بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ"
                 android:textColor="@color/black"
-                android:textSize="22sp" />
+                android:textSize="18sp" />
         </ScrollView>
 
         <ImageView
@@ -137,7 +198,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="2dp"
             android:background="@drawable/bg2"
             android:backgroundTint="@color/white"
             android:padding="8dp"
@@ -162,13 +223,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            android:layout_marginTop="4dp"
             android:layout_marginRight="5dp"
-            android:layout_marginBottom="15dp"
+            android:layout_marginBottom="6dp"
             android:background="@drawable/bg2"
             android:gravity="center"
             android:orientation="horizontal"
-            android:padding="10dp"
+            android:padding="5dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
