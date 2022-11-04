@@ -34,12 +34,13 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
+    private var instance: MainFragment? = null
     lateinit var binding: FragmentMainBinding
     lateinit var mainAdapter: MainAdapter
     private val viewModel: MainViewModel by viewModels()
     private var languages = arrayListOf<String>()
     private var reciters = arrayListOf<Reciter>()
-    private var alertDialog: AlertDialog? = null
+    private lateinit var alertDialog: AlertDialog
     private lateinit var mPrefs: SharedPreferences
     private lateinit var prefsEditor: SharedPreferences.Editor
     private var language: String? = null
@@ -49,12 +50,20 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     private val defaultTranslator = Translator("Mishary Rashid Alafasy", "ar.alafasy", "ar")
     private val defaultReciter = Reciter("Mishary Rashid Alafasy", "ar.alafasy")
 
+    fun getInstance() = instance
+
+    fun makeApiCall() {
+        requestAllSurahes()
+        requestLanguages()
+    }
+
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onStart() {
         super.onStart()
-        if (checkNetworkStatus(requireContext())) {
-            requestAllSurahes()
-            requestLanguages()
+        if (checkNetworkStatus(requireContext(), "main")) {
+            makeApiCall()
+        } else {
+            makeNotifyVisible()
         }
     }
 
@@ -85,14 +94,18 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         binding = FragmentMainBinding.inflate(layoutInflater, container, false)
         binding.toolbar.setOnMenuItemClickListener(this)
         binding.toolbar.inflateMenu(R.menu.my_menu)
+
+        alertDialog = AlertDialog.Builder(requireContext()).create()
+        instance = this
         return binding.root
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        makeNotifyVisible()
+
         initViewModel()
 
-        binding.progressBar.visibility = View.VISIBLE
         // create sharedPreferences
         mPrefs = requireContext().getSharedPreferences("singleton", Context.MODE_PRIVATE)
         // create editor
@@ -172,7 +185,7 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         // observe list of surahes
         viewModel.surahs.observe(viewLifecycleOwner) { data ->
             // hide progressBar when data observed
-            binding.progressBar.visibility = View.GONE
+            makeNotifyInvisible()
             // update adapter with observed data
             mainAdapter.setUpdatedData(data)
         }
@@ -200,8 +213,21 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         // observe error
         viewModel.error.observe(viewLifecycleOwner) { error ->
             // show error to a user
+            makeNotifyVisible()
             Toast.makeText(activity, "Error getting data", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun makeNotifyVisible() {
+        binding.progressBar.visibility = View.VISIBLE
+        binding.networkOff.visibility = View.VISIBLE
+        binding.errorText.visibility = View.VISIBLE
+    }
+
+    private fun makeNotifyInvisible() {
+        binding.progressBar.visibility = View.GONE
+        binding.networkOff.visibility = View.INVISIBLE
+        binding.errorText.visibility = View.INVISIBLE
     }
 
     // function to request all surahes
@@ -232,14 +258,15 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
     // function to pick a language
     private fun showLanguageDialog() {
-        alertDialog = activity?.let {
-            val builder = AlertDialog.Builder(requireActivity())
-            val adapter = ListAdapter(
-                requireContext(),
-                R.layout.list_item,
-                languages.toTypedArray(), R.drawable.ic_translate, language
-            )
-            setDialogView(builder, R.string.choose_language)
+        val adapter = ListAdapter(
+            requireContext(),
+            R.layout.list_item,
+            languages.toTypedArray(), R.drawable.ic_translate, language
+        )
+        val builder = AlertDialog.Builder(requireActivity())
+        setDialogView(builder, R.string.choose_language)
+
+        alertDialog = requireActivity().let {
             builder.setAdapter(adapter, object : DialogInterface.OnClickListener {
                 override fun onClick(dialog: DialogInterface?, which: Int) {
                     language = languages[which]
@@ -249,7 +276,8 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             })
             builder.create()
         }
-        alertDialog?.show()
+        alertDialog.show()
+
         setDialogLayout()
     }
 
@@ -264,14 +292,14 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             translatorList.add(defaultTranslator)
             names.add(defaultTranslator.englishName)
         }
-        alertDialog = activity?.let {
-            val builder = AlertDialog.Builder(requireActivity())
-            val adapter = ListAdapter(
-                requireContext(),
-                R.layout.list_item,
-                names.toTypedArray(), R.drawable.ic_book, translator?.englishName
-            )
-            setDialogView(builder, R.string.choose_translation)
+        val builder = AlertDialog.Builder(requireActivity())
+        val adapter = ListAdapter(
+            requireContext(),
+            R.layout.list_item,
+            names.toTypedArray(), R.drawable.ic_book, translator?.englishName
+        )
+        setDialogView(builder, R.string.choose_translation)
+        alertDialog = requireActivity().let {
             builder.setAdapter(adapter, object : DialogInterface.OnClickListener {
                 override fun onClick(dialog: DialogInterface?, which: Int) {
                     // filter translators according to their names to get their "identifier"
@@ -283,20 +311,20 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             })
             builder.create()
         }
-        alertDialog?.show()
+        alertDialog.show()
         setDialogLayout()
     }
 
     // function to pick a reciter
     private fun showRecitersDialog(recitersName: Array<String>) {
-        alertDialog = activity?.let {
-            val builder = AlertDialog.Builder(requireActivity())
-            val adapter = ListAdapter(
-                requireContext(),
-                R.layout.list_item,
-                recitersName, R.drawable.ic_man, reciter?.englishName
-            )
-            setDialogView(builder, R.string.choose_recitation)
+        val builder = AlertDialog.Builder(requireActivity())
+        val adapter = ListAdapter(
+            requireContext(),
+            R.layout.list_item,
+            recitersName, R.drawable.ic_man, reciter?.englishName
+        )
+        setDialogView(builder, R.string.choose_recitation)
+        alertDialog = requireActivity().let {
             builder.setAdapter(adapter, object : DialogInterface.OnClickListener {
                 override fun onClick(dialog: DialogInterface?, which: Int) {
                     // get the selected reciter using his name
@@ -309,7 +337,7 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             })
             builder.create()
         }
-        alertDialog?.show()
+        alertDialog.show()
         setDialogLayout()
     }
 
@@ -321,7 +349,7 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
 
     private fun setDialogLayout() {
         val width = binding.toolbar.width
-        alertDialog!!.window?.setLayout(width - 50, width + 200)
+        alertDialog.window?.setLayout(width - 50, width + 200)
     }
 
     // inflate menu
@@ -346,9 +374,9 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     // on resume
     override fun onResume() {
         super.onResume()
-        try {
-            alertDialog!!.cancel()
-        } catch (e: Exception) {
-        }
+        makeNotifyInvisible()
+        alertDialog.hide()
+        alertDialog.dismiss()
+        alertDialog.cancel()
     }
 }

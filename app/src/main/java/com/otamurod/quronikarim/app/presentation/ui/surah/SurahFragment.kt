@@ -36,12 +36,11 @@ import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 import java.io.File
 
-
 private const val TAG = "SurahFragment"
 
 @AndroidEntryPoint
 class SurahFragment : Fragment() {
-
+    private var instance: SurahFragment? = null
     lateinit var binding: FragmentSurahBinding
     private val viewModel: SurahViewModel by viewModels()
     private lateinit var surah: Surah
@@ -57,19 +56,24 @@ class SurahFragment : Fragment() {
     private var listOfAyahsText = ArrayList<String>()
     private var ayahsDurations = ArrayList<Int>()
     private var currentDuration: Int? = null
-    private var i = 1
     private var stringBuilder = StringBuilder()
     private var isSeekBarChanged = false
     private var isAudioObserved = false
     private var progressDialog: ProgressDialog? = null
     private val args by navArgs<SurahFragmentArgs>()
 
+    fun getInstance() = instance
+
+    fun requestTranslation() {
+        viewModel.getSurahTranslation(surah.number, translator.identifier)
+    }
+
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onStart() {
         super.onStart()
         // Make API Call
-        if (checkNetworkStatus(requireContext())) {
-            viewModel.getSurahTranslation(surah.number, translator.identifier)
+        if (checkNetworkStatus(requireContext(), "surah")) {
+            requestTranslation()
         }
     }
 
@@ -84,6 +88,7 @@ class SurahFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentSurahBinding.inflate(layoutInflater, container, false)
+        instance = this
         return binding.root
     }
 
@@ -118,9 +123,39 @@ class SurahFragment : Fragment() {
             binding.download.isEnabled = false
             isAudioObserved = true
         }
+
+        // set click listener for card
+        var isCardClicked = false
+        binding.card.setOnClickListener {
+            if (!isCardClicked) {
+                binding.translatorTv.visibility = View.VISIBLE
+                binding.reciterTv.visibility = View.VISIBLE
+                binding.languageCard.visibility = View.VISIBLE
+                isCardClicked = true
+            } else {
+                binding.translatorTv.visibility = View.GONE
+                binding.reciterTv.visibility = View.GONE
+                binding.languageCard.visibility = View.GONE
+                isCardClicked = false
+            }
+        }
+
+        // set click listener for surah text view
+        var isSurahTextClicked = false
+        binding.surah.setOnClickListener {
+            if (!isSurahTextClicked) {
+                binding.decreaseText.visibility = View.VISIBLE
+                binding.increaseText.visibility = View.VISIBLE
+                isSurahTextClicked = true
+            } else {
+                binding.decreaseText.visibility = View.GONE
+                binding.increaseText.visibility = View.GONE
+                isSurahTextClicked = false
+            }
+        }
         // Download audio on clicked
         binding.download.setOnClickListener {
-            lifecycleScope.launch {
+            lifecycleScope.launch(Dispatchers.IO) {
                 audioPath = downloadAudio(surah.number, reciter.identifier)
             }
         }
@@ -180,8 +215,8 @@ class SurahFragment : Fragment() {
     private fun initViewModel() {
         viewModel.surahAudio.observe(viewLifecycleOwner) { surahAudio ->
             if (surahAudio != null) {
-                val audio = setAudioInfo(surahAudio)
-                prepareAudioUrl(audio)
+                setAudioInfo(surahAudio)
+                prepareAudioUrl()
                 binding.progressBar.visibility = View.GONE
             } else {
                 Toast.makeText(requireContext(), "surah: $surahAudio", Toast.LENGTH_SHORT)
@@ -190,9 +225,10 @@ class SurahFragment : Fragment() {
         }
     }
 
-    private suspend fun downloadAudio(surahNumber: Int, reciter: String): String {
-        val filename = "$surahNumber.mp3"
-        val job = GlobalScope.launch(Dispatchers.IO) {
+    private fun downloadAudio(surahNumber: Int, reciter: String): String {
+        var path = ""
+        lifecycleScope.launch(Dispatchers.IO) {
+            val filename = "$surahNumber.mp3"
             val direct = File(
                 resources.getString(R.string.app_name) + "/"
             )
@@ -214,15 +250,17 @@ class SurahFragment : Fragment() {
                     File.separator + getString(R.string.app_name) + File.separator.toString() + reciter + File.separator.toString() + filename
                 )
             dm.enqueue(request)
+            path = "/storage/emulated/0/Music/${getString(R.string.app_name)}/$reciter/$filename"
         }
-        // wait for job completes
-        job.join()
-        // show snackBar if job finished
-        if (job.isCompleted) {
+
+        GlobalScope.launch {
+            // show snackBar if job finished
             snackBar(R.string.downloading)
             isAudioObserved = true
+            animateDownloadButton()
         }
-        return "/storage/emulated/0/Music/${getString(R.string.app_name)}/$reciter/$filename"
+
+        return path
     }
 
     private fun showProgressDialog() {
@@ -232,16 +270,15 @@ class SurahFragment : Fragment() {
         )
     }
 
-    private fun prepareAudioUrl(audio: Boolean) {
-        val identifier = if (!audio) reciter.identifier else translator.identifier
+    private fun prepareAudioUrl() {
         surahAudioUrlBySurah = String.format(
             "https://cdn.islamic.network/quran/audio-surah/128/%s/%d.mp3",
-            identifier,
+            reciter.identifier,
             surah.number
         )
     }
 
-    private fun setAudioInfo(surahAudio: SurahAudio): Boolean {
+    private fun setAudioInfo(surahAudio: SurahAudio) {
         var audio = true
         binding.numberOfAyahs.text = "${surahAudio.numberOfAyahs} ayahs"
         var ayahNumber = 1
@@ -254,7 +291,7 @@ class SurahFragment : Fragment() {
             }
             val retriever = MediaMetadataRetriever()
 
-            if (ayahAudio.audio != null) {
+            if (ayahAudio.audio != null && translator.identifier == reciter.identifier) {
                 retriever.setDataSource(ayahAudio.audio, HashMap())
                 val timeInMillisecond =
                     retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
@@ -265,14 +302,13 @@ class SurahFragment : Fragment() {
                 stringBuilder.append(listOfAyahsText[ayahNumber - 2])
             }
         }
-        if (!audio) {
+        if (!audio || reciter.identifier != translator.identifier) {
             binding.surah.text = stringBuilder.toString()
         } else {
             currentDuration = ayahsDurations[0] + 2000
             stringBuilder.append(listOfAyahsText[0])
             binding.surah.text = stringBuilder.toString() // show first ayah text in the beginning
         }
-        return audio
     }
 
     private fun setSurahInfo(surah: Surah) {
@@ -297,6 +333,7 @@ class SurahFragment : Fragment() {
         return String.format("%02d:%02d:%02d", hour, min, sec)
     }
 
+    private var i = 1
     private var runnable = object : Runnable {
         override fun run() {
             /** Update playing time */
@@ -357,7 +394,6 @@ class SurahFragment : Fragment() {
         binding.totalTime.text = "/$endTime"
         binding.seekbar.max = mediaPlayer?.duration!!
         handler.postDelayed(runnable, 100)
-        animateDownloadButton()
     }
 
     private fun animateDownloadButton() {
@@ -388,14 +424,6 @@ class SurahFragment : Fragment() {
             }
         }
     }
-
-    /*override fun onResume() {
-        super.onResume()
-        if (mediaPlayer != null) {
-            binding.totalTime.text = "/$endTime"
-            mediaPlayer!!.start()
-        }
-    }*/
 
     override fun onDestroy() {
         super.onDestroy()

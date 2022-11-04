@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/aqua"
+    android:background="@color/grey_500"
     android:fillViewport="true"
     tools:context=".app.presentation.ui.surah.SurahFragment">
 
@@ -16,7 +16,7 @@
             android:id="@+id/heading"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
-            android:background="@color/purple_700"
+            android:background="?attr/colorPrimary"
             android:padding="10dp"
             android:text="بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ"
             android:textAlignment="center"
@@ -34,7 +34,7 @@
             android:layout_margin="5dp"
             app:cardCornerRadius="15dp"
             app:cardElevation="5dp"
-            app:layout_constraintBottom_toTopOf="@id/translator_tv"
+            app:layout_constraintBottom_toTopOf="@id/scrollView"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/heading">
@@ -42,7 +42,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#52379DF9"
+                android:background="@color/white"
                 android:orientation="horizontal"
                 android:padding="3dp">
 
@@ -61,7 +61,7 @@
                         android:id="@+id/surahNumber"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@color/purple_700"
+                        android:background="?attr/colorPrimary"
                         android:gravity="center"
                         android:text="114"
                         android:textColor="@color/white"
@@ -73,9 +73,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
+                    android:fontFamily="sans-serif-medium"
                     android:text="englishName"
                     android:textColor="@color/black"
-                    android:textSize="18sp"
+                    android:textSize="22sp"
                     app:layout_constraintLeft_toRightOf="@id/image_thumb"
                     app:layout_constraintTop_toTopOf="@id/image_thumb" />
 
@@ -83,9 +84,9 @@
                     android:id="@+id/name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
+                    android:layout_marginRight="8dp"
                     android:text="Name"
-                    android:textColor="@color/purple_700"
+                    android:textColor="?attr/colorPrimary"
                     android:textSize="25sp"
                     app:layout_constraintBottom_toBottomOf="@id/englishName"
                     app:layout_constraintRight_toRightOf="parent"
@@ -98,9 +99,9 @@
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="3dp"
                     android:text="englishNameTranslation"
-                    android:textColor="@color/purple_700"
-                    android:textSize="20sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="16sp"
+                    app:layout_constraintBottom_toTopOf="@id/translator_tv"
                     app:layout_constraintLeft_toLeftOf="@id/englishName"
                     app:layout_constraintTop_toBottomOf="@id/englishName" />
 
@@ -114,10 +115,74 @@
                     app:layout_constraintBottom_toBottomOf="@id/englishNameTranslation"
                     app:layout_constraintRight_toRightOf="@id/name" />
 
+                <TextView
+                    android:id="@+id/translator_tv"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="6dp"
+                    android:drawableLeft="@drawable/ic_book"
+                    android:drawablePadding="15dp"
+                    android:drawableTint="@color/green_500"
+                    android:fontFamily="sans-serif"
+                    android:maxLines="1"
+                    android:text="Translator"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toTopOf="@id/reciter_tv"
+                    app:layout_constraintEnd_toStartOf="@id/language_card"
+                    app:layout_constraintStart_toStartOf="@id/image_thumb"
+                    app:layout_constraintTop_toBottomOf="@id/englishNameTranslation" />
+
+                <TextView
+                    android:id="@+id/reciter_tv"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:drawableLeft="@drawable/ic_man"
+                    android:drawablePadding="15dp"
+                    android:drawableTint="@color/green_500"
+                    android:fontFamily="sans-serif"
+                    android:maxLines="1"
+                    android:text="Reciter"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/translator_tv"
+                    app:layout_constraintStart_toStartOf="@id/translator_tv"
+                    app:layout_constraintTop_toBottomOf="@id/translator_tv" />
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/language_card"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    app:cardCornerRadius="50dp"
+                    app:layout_constraintBottom_toBottomOf="@id/reciter_tv"
+                    app:layout_constraintEnd_toEndOf="@id/name">
+
+                    <TextView
+                        android:id="@+id/language_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/colorPrimary"
+                        android:padding="4dp"
+                        android:text="UZ"
+                        android:textAllCaps="true"
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </androidx.cardview.widget.CardView>
+
                 <ProgressBar
                     android:id="@+id/progressBar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:progressTintMode="multiply"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
@@ -127,69 +192,27 @@
 
         </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="15dp"
-            app:cardCornerRadius="50dp"
-            app:layout_constraintBottom_toBottomOf="@id/decreaseText"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@id/decreaseText">
-
-            <TextView
-                android:id="@+id/language_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
-                android:padding="8dp"
-                android:text="UZ"
-                android:textAllCaps="true"
-                android:textColor="@color/black"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-        </androidx.cardview.widget.CardView>
-
-        <TextView
-            android:id="@+id/translator_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:text="Translator"
-            android:textColor="@color/black"
-            android:textSize="17sp"
-            app:layout_constraintBottom_toTopOf="@id/reciter_tv"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/card" />
-
-        <TextView
-            android:id="@+id/reciter_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Reciter"
-            android:textColor="@color/black"
-            android:textSize="17sp"
-            app:layout_constraintBottom_toTopOf="@id/scrollView"
-            app:layout_constraintLeft_toLeftOf="@id/translator_tv"
-            app:layout_constraintTop_toBottomOf="@id/translator_tv" />
-
         <ScrollView
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_margin="5dp"
             android:fillViewport="true"
             android:padding="4dp"
             app:layout_constraintBottom_toTopOf="@id/player"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/reciter_tv">
+            app:layout_constraintTop_toBottomOf="@id/card">
 
             <TextView
                 android:id="@+id/surah"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clickable="true"
+                android:padding="6dp"
+                android:selectAllOnFocus="true"
                 android:text="بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ"
                 android:textColor="@color/black"
+                android:textIsSelectable="true"
                 android:textSize="18sp" />
         </ScrollView>
 
@@ -203,6 +226,7 @@
             android:backgroundTint="@color/white"
             android:padding="8dp"
             android:src="@drawable/ic_text_decrease"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@id/scrollView"
             app:layout_constraintLeft_toLeftOf="parent" />
 
@@ -215,6 +239,7 @@
             android:backgroundTint="@color/white"
             android:padding="8dp"
             android:src="@drawable/ic_text_increase"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@id/decreaseText"
             app:layout_constraintLeft_toRightOf="@id/decreaseText" />
 
@@ -269,9 +294,9 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
                 android:layout_weight="5"
-                android:progressBackgroundTint="#04760B"
-                android:progressTint="@color/black"
-                android:thumbTint="@color/black" />
+                android:progressBackgroundTint="?attr/colorSecondaryVariant"
+                android:progressTint="?attr/colorSecondary"
+                android:thumbTint="?attr/colorSecondary" />
 
             <ImageView
                 android:id="@+id/download"
