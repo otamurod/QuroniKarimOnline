@@ -2,7 +2,6 @@ package com.otamurod.quronikarim.app.presentation.ui.main
 
 import android.Manifest
 import android.content.Context
-import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
@@ -35,8 +34,8 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     private var instance: MainFragment? = null
-    lateinit var binding: FragmentMainBinding
-    lateinit var mainAdapter: MainAdapter
+    private lateinit var binding: FragmentMainBinding
+    private lateinit var mainAdapter: MainAdapter
     private val viewModel: MainViewModel by viewModels()
     private var languages = arrayListOf<String>()
     private var reciters = arrayListOf<Reciter>()
@@ -50,21 +49,10 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     private val defaultTranslator = Translator("Mishary Rashid Alafasy", "ar.alafasy", "ar")
     private val defaultReciter = Reciter("Mishary Rashid Alafasy", "ar.alafasy")
 
-    fun getInstance() = instance
-
-    fun makeApiCall() {
-        requestAllSurahes()
-        requestLanguages()
-    }
-
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onStart() {
         super.onStart()
-        if (checkNetworkStatus(requireContext(), "main")) {
-            makeApiCall()
-        } else {
-            makeNotifyVisible()
-        }
+        makeApiCall()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,6 +73,7 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
                 ) { /* ... */
                 }
             }).check()
+        alertDialog = AlertDialog.Builder(requireContext()).create()
     }
 
     override fun onCreateView(
@@ -94,16 +83,12 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         binding = FragmentMainBinding.inflate(layoutInflater, container, false)
         binding.toolbar.setOnMenuItemClickListener(this)
         binding.toolbar.inflateMenu(R.menu.my_menu)
-
-        alertDialog = AlertDialog.Builder(requireContext()).create()
         instance = this
         return binding.root
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        makeNotifyVisible()
-
         initViewModel()
 
         // create sharedPreferences
@@ -113,27 +98,45 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         val gson = Gson() // create Gson object
 
         // retrieve translator
-        var json = mPrefs.getString("translator", "")
-        translator = gson.fromJson(json, Translator::class.java)
 
+        var json: String? = mPrefs.getString("translator", "")
+        translator = gson.fromJson(json, Translator::class.java)
+        if (translator == null) {
+            translator = defaultTranslator
+        }
+        storeTranslator() // Default setting
         // retrieve reciter
         json = mPrefs.getString("reciter", "")
         reciter = gson.fromJson(json, Reciter::class.java)
+        if (reciter == null) {
+            reciter = defaultReciter
+        }
+        storeReciter() // Default setting
         // retrieve language
         language = mPrefs.getString("language", null)
-        // Default settings
         if (language == null) {
             language = defaultLang
-            storeLanguage()
-        } else if (reciter == null) {
-            reciter = defaultReciter
-            storeReciter()
-        } else if (translator == null) {
-            translator = defaultTranslator
         }
+        storeLanguage() // Default setting
 
+        // initialize adapter
         initAdapter()
+        // set retry button click listener
+        binding.retry.setOnClickListener {
+            makeApiCall()
+        }
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    // call api
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun makeApiCall() {
+        if (checkNetworkStatus(requireContext())) {
+            requestAllSurahes()
+            requestLanguages()
+        } else {
+            makeNotifyVisible()
+        }
     }
 
     // function to store language setting
@@ -149,7 +152,7 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         val prefsEditor: SharedPreferences.Editor = mPrefs.edit()
         val gson = Gson() // create Gson object
         //store translator
-        var json = gson.toJson(translator) // convert to json
+        val json = gson.toJson(translator) // convert to json
         prefsEditor.putString("translator", json)
         prefsEditor.apply()
     }
@@ -159,7 +162,7 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         val prefsEditor: SharedPreferences.Editor = mPrefs.edit()
         val gson = Gson() // create Gson object
         //store translator
-        var json = gson.toJson(reciter) // convert to json
+        val json = gson.toJson(reciter) // convert to json
         prefsEditor.putString("reciter", json)
         prefsEditor.apply()
     }
@@ -181,9 +184,10 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     }
 
     // function to initialize viewModel
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun initViewModel() {
         // observe list of surahes
-        viewModel.surahs.observe(viewLifecycleOwner) { data ->
+        viewModel.surahes.observe(viewLifecycleOwner) { data ->
             // hide progressBar when data observed
             makeNotifyInvisible()
             // update adapter with observed data
@@ -211,10 +215,11 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             showRecitersDialog(reciterNames.toTypedArray())
         }
         // observe error
-        viewModel.error.observe(viewLifecycleOwner) { error ->
+        viewModel.error.observe(viewLifecycleOwner) {
             // show error to a user
             makeNotifyVisible()
-            Toast.makeText(activity, "Error getting data", Toast.LENGTH_SHORT).show()
+            makeApiCall()
+            Toast.makeText(activity, getString(R.string.loading_error), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -222,12 +227,14 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         binding.progressBar.visibility = View.VISIBLE
         binding.networkOff.visibility = View.VISIBLE
         binding.errorText.visibility = View.VISIBLE
+        binding.retry.visibility = View.VISIBLE
     }
 
     private fun makeNotifyInvisible() {
         binding.progressBar.visibility = View.GONE
         binding.networkOff.visibility = View.INVISIBLE
         binding.errorText.visibility = View.INVISIBLE
+        binding.retry.visibility = View.INVISIBLE
     }
 
     // function to request all surahes
@@ -240,9 +247,6 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     private fun requestLanguages() {
         // invoke viewModel function
         languages = viewModel.getAllLanguagesCall()
-        if (language == null) {
-            showLanguageDialog()
-        }
     }
 
     // function to request translators
@@ -267,17 +271,16 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         setDialogView(builder, R.string.choose_language)
 
         alertDialog = requireActivity().let {
-            builder.setAdapter(adapter, object : DialogInterface.OnClickListener {
-                override fun onClick(dialog: DialogInterface?, which: Int) {
-                    language = languages[which]
-                    storeLanguage()
-                    requestTranslators()
-                }
-            })
+            builder.setAdapter(
+                adapter
+            ) { _, which ->
+                language = languages[which]
+                storeLanguage()
+                requestTranslators()
+            }
             builder.create()
         }
         alertDialog.show()
-
         setDialogLayout()
     }
 
@@ -300,15 +303,14 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         )
         setDialogView(builder, R.string.choose_translation)
         alertDialog = requireActivity().let {
-            builder.setAdapter(adapter, object : DialogInterface.OnClickListener {
-                override fun onClick(dialog: DialogInterface?, which: Int) {
-                    // filter translators according to their names to get their "identifier"
-                    val name = translatorList.filter { it.englishName == names[which] }
-                    // get translator
-                    translator = name[0]
-                    storeTranslator()
-                }
-            })
+            builder.setAdapter(
+                adapter
+            ) { _, which -> // filter translators according to their names to get their "identifier"
+                val name = translatorList.filter { it.englishName == names[which] }
+                // get translator
+                translator = name[0]
+                storeTranslator()
+            }
             builder.create()
         }
         alertDialog.show()
@@ -325,16 +327,15 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         )
         setDialogView(builder, R.string.choose_recitation)
         alertDialog = requireActivity().let {
-            builder.setAdapter(adapter, object : DialogInterface.OnClickListener {
-                override fun onClick(dialog: DialogInterface?, which: Int) {
-                    // get the selected reciter using his name
-                    val selectedReciter = reciters.filter { reciter ->
-                        reciter.englishName == recitersName[which]
-                    }
-                    reciter = selectedReciter[0]
-                    storeReciter()
+            builder.setAdapter(
+                adapter
+            ) { _, which -> // get the selected reciter using his name
+                val selectedReciter = reciters.filter { reciter ->
+                    reciter.englishName == recitersName[which]
                 }
-            })
+                reciter = selectedReciter[0]
+                storeReciter()
+            }
             builder.create()
         }
         alertDialog.show()
@@ -353,6 +354,7 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     }
 
     // inflate menu
+    @Deprecated("Deprecated in Java")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.my_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
@@ -374,9 +376,6 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     // on resume
     override fun onResume() {
         super.onResume()
-        makeNotifyInvisible()
-        alertDialog.hide()
         alertDialog.dismiss()
-        alertDialog.cancel()
     }
 }

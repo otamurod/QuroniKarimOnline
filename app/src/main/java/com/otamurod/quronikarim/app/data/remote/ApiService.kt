@@ -2,7 +2,6 @@ package com.otamurod.quronikarim.app.data.remote
 
 import com.otamurod.quronikarim.app.data.remote.dto.MainResponse
 import com.otamurod.quronikarim.app.data.remote.dto.audio.SurahAudioDto
-import com.otamurod.quronikarim.app.data.remote.dto.details.SurahDetailDto
 import com.otamurod.quronikarim.app.data.remote.dto.reciter.ReciterDto
 import com.otamurod.quronikarim.app.data.remote.dto.surah.SurahDto
 import com.otamurod.quronikarim.app.data.remote.dto.translator.TranslatorDto
@@ -16,11 +15,6 @@ interface ApiService {
     // http://api.alquran.cloud/surah
     @GET("surah")
     suspend fun getAllSurahesFromAPI(): Response<MainResponse<List<SurahDto>>>
-
-    // get a single surah
-    // http://api.alquran.cloud/surah/1
-    @GET(value = "surah/{number}")
-    suspend fun getSurahDetailFromAPI(@Path("number") number: Int): Response<MainResponse<SurahDetailDto>>
 
     // get a surah with ayah-by-ayah audios
     // http://api.alquran.cloud/surah/1/ar.alafasy

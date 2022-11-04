@@ -5,8 +5,15 @@ import com.otamurod.quronikarim.app.domain.model.audio.AyahAudio
 
 fun AyahAudioDto.toAyahAudio(): AyahAudio {
     return AyahAudio(
-        audio, audioSecondary, hizbQuarter, juz, manzil, number, numberInSurah, page, ruku,
-//        sajda,
+        audio,
+        audioSecondary,
+        hizbQuarter,
+        juz,
+        manzil,
+        number,
+        numberInSurah,
+        page,
+        ruku,
         text
     )
 }

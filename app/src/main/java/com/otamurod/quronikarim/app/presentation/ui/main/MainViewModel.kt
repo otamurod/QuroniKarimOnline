@@ -21,8 +21,8 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val repository: Repository
 ) : ViewModel() {
-    private var _surahs = MutableLiveData<List<Surah>>()
-    val surahs: LiveData<List<Surah>> = _surahs
+    private var _surahes = MutableLiveData<List<Surah>>()
+    val surahes: LiveData<List<Surah>> = _surahes
 
     private var _translators = MutableLiveData<List<Translator>>()
     val translator: LiveData<List<Translator>> = _translators
@@ -80,7 +80,7 @@ class MainViewModel @Inject constructor(
                     _error.call()
                 }
             }.collectLatest {
-                _surahs.postValue(it)
+                _surahes.postValue(it)
             }
         }
     }

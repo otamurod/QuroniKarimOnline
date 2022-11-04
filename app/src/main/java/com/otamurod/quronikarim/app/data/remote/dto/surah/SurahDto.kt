@@ -4,7 +4,5 @@ data class SurahDto(
     val englishName: String,
     val englishNameTranslation: String,
     val name: String,
-    val number: Int,
-//    val numberOfAyahs: Int,
-//    val revelationType: String
+    val number: Int
 )

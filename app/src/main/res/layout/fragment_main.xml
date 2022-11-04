@@ -37,6 +37,17 @@
         android:textColor="?attr/colorSecondaryVariant"
         android:textSize="26sp" />
 
+    <Button
+        android:id="@+id/retry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/error_text"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="-100dp"
+        android:backgroundTint="?attr/colorSecondaryVariant"
+        android:text="Retry"
+        android:textSize="16sp" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"

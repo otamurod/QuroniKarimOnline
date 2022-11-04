@@ -13,7 +13,7 @@ class MainAdapter(
     var context: Context,
     var onClick: OnClick
 ) : RecyclerView.Adapter<MainAdapter.VH>() {
-    var items = ArrayList<Surah>()
+    private var items = ArrayList<Surah>()
 
     @SuppressLint("NotifyDataSetChanged")
     fun setUpdatedData(items: List<Surah>) {
@@ -25,7 +25,7 @@ class MainAdapter(
         notifyDataSetChanged()
     }
 
-    inner class VH(val itemSurahBinding: ItemSurahBinding) : RecyclerView.ViewHolder(itemSurahBinding.root) {
+    inner class VH(private val itemSurahBinding: ItemSurahBinding) : RecyclerView.ViewHolder(itemSurahBinding.root) {
 
         fun onBind(surah: Surah) {
 

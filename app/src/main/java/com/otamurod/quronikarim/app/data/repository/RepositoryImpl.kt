@@ -1,10 +1,12 @@
 package com.otamurod.quronikarim.app.data.repository
 
 import android.util.Log
-import com.otamurod.quronikarim.app.data.mapper.*
+import com.otamurod.quronikarim.app.data.mapper.toReciter
+import com.otamurod.quronikarim.app.data.mapper.toSurah
+import com.otamurod.quronikarim.app.data.mapper.toSurahAudio
+import com.otamurod.quronikarim.app.data.mapper.toTranslator
 import com.otamurod.quronikarim.app.data.repository.datasource.SurahDataSource
 import com.otamurod.quronikarim.app.domain.model.audio.SurahAudio
-import com.otamurod.quronikarim.app.domain.model.detail.SurahDetail
 import com.otamurod.quronikarim.app.domain.model.reciter.Reciter
 import com.otamurod.quronikarim.app.domain.model.surah.Surah
 import com.otamurod.quronikarim.app.domain.model.translator.Translator
@@ -21,23 +23,6 @@ class RepositoryImpl @Inject constructor(
     override suspend fun getAllSurah(): Flow<List<Surah>> = flow {
         val response = surahDataSource.getSurahList()
         emit(response.body()!!.data.map { it.toSurah() })
-    }
-
-    override suspend fun getSurah(surahNumber: Int): Flow<SurahDetail> = flow {
-        try {
-            val response = surahDataSource.getSurahDetail(surahNumber)
-            if (response.isSuccessful) {
-                val body = response.body()
-                if (body != null) {
-                    val data = body.data
-                    emit(data.toSurahDetail())
-                }
-            } else {
-                Log.d(TAG, "getSurah: ${response.code()}")
-            }
-        } catch (e: Exception) {
-            Log.d(TAG, "getSurah: ${e.message}")
-        }
     }
 
     override suspend fun getSurahAudio(

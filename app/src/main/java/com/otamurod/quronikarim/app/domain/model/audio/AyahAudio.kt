@@ -10,6 +10,5 @@ data class AyahAudio(
     val numberInSurah: Int,
     val page: Int,
     val ruku: Int,
-//    val sajda: Boolean,
     val text: String
 )

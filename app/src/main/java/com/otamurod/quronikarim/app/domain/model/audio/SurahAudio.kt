@@ -7,6 +7,5 @@ data class SurahAudio(
     val englishNameTranslation: String,
     val name: String,
     val number: Int,
-    val numberOfAyahs: Int,
-//    val revelationType: String
+    val numberOfAyahs: Int
 )

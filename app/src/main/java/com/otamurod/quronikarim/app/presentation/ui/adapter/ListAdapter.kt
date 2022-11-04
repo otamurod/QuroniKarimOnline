@@ -9,8 +9,8 @@ import com.otamurod.quronikarim.R
 import com.otamurod.quronikarim.databinding.ListItemBinding
 
 class ListAdapter(
-    var myContext: Context,
-    private val listItem: Int,
+    private var myContext: Context,
+    listItem: Int,
     private val list: Array<String>,
     private val img: Int,
     private val selected: String?
