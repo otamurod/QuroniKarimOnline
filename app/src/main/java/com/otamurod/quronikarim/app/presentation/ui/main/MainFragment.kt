@@ -33,7 +33,6 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
-    private var instance: MainFragment? = null
     private lateinit var binding: FragmentMainBinding
     private lateinit var mainAdapter: MainAdapter
     private val viewModel: MainViewModel by viewModels()
@@ -58,22 +57,7 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        Dexter.withContext(requireContext())
-            .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-            .withListener(object : PermissionListener {
-                override fun onPermissionGranted(response: PermissionGrantedResponse) { /* ... */
-                }
-
-                override fun onPermissionDenied(response: PermissionDeniedResponse) { /* ... */
-                }
-
-                override fun onPermissionRationaleShouldBeShown(
-                    permission: PermissionRequest?,
-                    token: PermissionToken?
-                ) { /* ... */
-                }
-            }).check()
-        alertDialog = AlertDialog.Builder(requireContext()).create()
+        askPermission()
     }
 
     override fun onCreateView(
@@ -83,7 +67,8 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         binding = FragmentMainBinding.inflate(layoutInflater, container, false)
         binding.toolbar.setOnMenuItemClickListener(this)
         binding.toolbar.inflateMenu(R.menu.my_menu)
-        instance = this
+        alertDialog = AlertDialog.Builder(requireContext()).create()
+        alertDialog.dismiss()
         return binding.root
     }
 
@@ -137,6 +122,24 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         } else {
             makeNotifyVisible()
         }
+    }
+
+    private fun askPermission() {
+        Dexter.withContext(requireContext())
+            .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+            .withListener(object : PermissionListener {
+                override fun onPermissionGranted(response: PermissionGrantedResponse) { /* ... */
+                }
+
+                override fun onPermissionDenied(response: PermissionDeniedResponse) { /* ... */
+                }
+
+                override fun onPermissionRationaleShouldBeShown(
+                    permission: PermissionRequest?,
+                    token: PermissionToken?
+                ) { /* ... */
+                }
+            }).check()
     }
 
     // function to store language setting
@@ -199,6 +202,7 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             val identifierList = translators.filter {
                 it.language == language
             }
+            binding.progressBar.visibility = View.GONE
             // show available translations
             showTranslatorDialog(identifierList as ArrayList<Translator>)
         }
@@ -211,6 +215,7 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             for (reciter in reciters) {
                 reciterNames.add(reciter.englishName)
             }
+            binding.progressBar.visibility = View.GONE
             // show reciters to choose
             showRecitersDialog(reciterNames.toTypedArray())
         }
@@ -277,6 +282,7 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
                 language = languages[which]
                 storeLanguage()
                 requestTranslators()
+                binding.progressBar.visibility = View.VISIBLE
             }
             builder.create()
         }
@@ -368,6 +374,7 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             }
             R.id.recitation -> {
                 requestReciters()
+                binding.progressBar.visibility = View.VISIBLE
             }
         }
         return true
@@ -378,4 +385,5 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         super.onResume()
         alertDialog.dismiss()
     }
+
 }

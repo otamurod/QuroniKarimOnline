@@ -9,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,12 +25,11 @@ class SurahViewModel @Inject constructor(
     fun getSurahTranslation(surahNumber: Int, identifier: String) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getSurahAudio(surahNumber, identifier).catch {
-                withContext(Dispatchers.Main) {
-                    _error.call()
-                }
+                _error.call()
             }.collectLatest {
                 _surahAudio.postValue(it)
             }
         }
     }
+
 }

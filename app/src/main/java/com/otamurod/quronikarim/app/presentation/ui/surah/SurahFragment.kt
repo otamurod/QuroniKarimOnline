@@ -1,7 +1,11 @@
 package com.otamurod.quronikarim.app.presentation.ui.surah
 
+import android.annotation.SuppressLint
 import android.app.DownloadManager
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.net.Uri
@@ -31,6 +35,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 @AndroidEntryPoint
@@ -55,6 +60,8 @@ class SurahFragment : Fragment() {
     private var isSeekBarChanged = false
     private var isAudioObserved = false
     private val args by navArgs<SurahFragmentArgs>()
+    private var audioPath: String? = null
+    private var downloadId: Long? = null
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onStart() {
@@ -103,14 +110,9 @@ class SurahFragment : Fragment() {
             binding.surah.textSize = size
         }
 
-        var audioPath =
+        audioPath =
             "/storage/emulated/0/Music/${getString(R.string.app_name)}/${reciter.identifier}/${surah.number}.mp3"
-        if (setMedia(audioPath)) {
-            binding.download.setImageResource(R.drawable.ic_downloaded)
-            binding.download.isClickable = false
-            binding.download.isEnabled = false
-            isAudioObserved = true
-        }
+        setUpPlayerSource(audioPath!!)
 
         // set retry button click listener
         binding.retry.setOnClickListener {
@@ -146,8 +148,8 @@ class SurahFragment : Fragment() {
         }
         // Download audio on clicked
         binding.download.setOnClickListener {
-            lifecycleScope.launch(Dispatchers.IO) {
-                audioPath = downloadAudio(surah.number, reciter.identifier)
+            lifecycleScope.launch {
+                downloadAudio(surah.number, reciter.identifier)
             }
         }
         // Play Audio Button Listener
@@ -156,7 +158,7 @@ class SurahFragment : Fragment() {
                 Toast.makeText(requireContext(), "Please Download Audio", Toast.LENGTH_SHORT).show()
             } else if (mediaPlayer == null) {
                 // do something
-                setMedia(audioPath)
+//                setUpPlayerSource(audioPath)
             } else if (mediaPlayer?.isPlaying!! && isAudioObserved) { // playing, icon is pause
                 binding.playBtn.setImageResource(R.drawable.ic_play_arrow)
                 mediaPlayer?.pause()
@@ -172,9 +174,10 @@ class SurahFragment : Fragment() {
                         isSeekBarChanged = true
                         mediaPlayer?.seekTo(binding.seekbar.progress)
                         stringBuilder.clear()
+                        stringBuilder.setLength(0)
                         var index = 0
-                        var time = 0
-                        if (time < mediaPlayer!!.currentPosition) {
+                        var time = -1
+                        if (time < mediaPlayer!!.currentPosition && reciter.identifier == translator.identifier) {
                             while (time < mediaPlayer!!.currentPosition && index < ayahsDurations.size) {
                                 stringBuilder.append(listOfAyahsText[index])
                                 binding.surah.text = stringBuilder.toString()
@@ -183,8 +186,6 @@ class SurahFragment : Fragment() {
                                 }
                                 index++
                             }
-                        } else {
-                            binding.surah.text = stringBuilder.toString()
                         }
                     } else {
                         binding.seekbar.progress = 0
@@ -215,54 +216,14 @@ class SurahFragment : Fragment() {
             // show error to a user
             makeNotifyVisible()
             makeApiCall()
-            Toast.makeText(activity, getString(R.string.loading_error), Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, getString(R.string.loading_error), Toast.LENGTH_SHORT)
+                .show()
         }
+
     }
 
     private fun requestTranslation() {
         viewModel.getSurahTranslation(surah.number, translator.identifier)
-    }
-
-    private fun downloadAudio(surahNumber: Int, reciter: String): String {
-        var path = ""
-        lifecycleScope.launch(Dispatchers.IO) {
-            val filename = "$surahNumber.mp3" // format name of a file
-            val direct = File(
-                resources.getString(R.string.app_name) + "/"
-            )
-            // make directory
-            if (!direct.exists()) {
-                direct.mkdir()
-            }
-            // create download manager
-            val dm = requireContext().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-            val downloadUri: Uri = Uri.parse(surahAudioUrlBySurah)
-            val request = DownloadManager.Request(downloadUri)
-            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-                .setAllowedOverRoaming(false)
-                .setTitle(filename)
-                .setMimeType("audio/mpeg")
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED or DownloadManager.Request.VISIBILITY_VISIBLE)
-                .setDestinationInExternalPublicDir(
-                    Environment.DIRECTORY_MUSIC,
-                    File.separator + getString(R.string.app_name) + File.separator.toString() + reciter + File.separator.toString() + filename
-                )
-            dm.enqueue(request)
-            // prepare stored path to return
-            path = String.format(
-                "/storage/emulated/0/Music/%s/%s/%s",
-                getString(R.string.app_name), // parent folder
-                reciter, // subfolder
-                filename //file
-            )
-        }
-        // TODO: wait until download finishes
-        // show snackBar if job finished
-        snackBar(R.string.downloading)
-        isAudioObserved = true
-        animateDownloadButton()
-
-        return path
     }
 
     private fun makeNotifyVisible() {
@@ -288,6 +249,7 @@ class SurahFragment : Fragment() {
         binding.numberOfAyahs.text = String.format("%d ayahs", surahAudio.numberOfAyahs)
         var ayahNumber = 1
         stringBuilder.clear()
+        stringBuilder.setLength(0)
         for (ayahAudio in surahAudio.ayahs) {
             if (translator.language != "ar") {
                 listOfAyahsText.add("﴾${ayahNumber++}﴿ \t${ayahAudio.text}\n\n") // retrieve ayah text
@@ -355,6 +317,7 @@ class SurahFragment : Fragment() {
                     binding.playBtn.setImageResource(R.drawable.ic_pause)   // Show pause button if player is playing
                     if (isSeekBarChanged) {
                         stringBuilder.clear()
+                        stringBuilder.setLength(0)
                         for (ayahText in listOfAyahsText) {
                             stringBuilder.append(ayahText)
                         }
@@ -401,10 +364,76 @@ class SurahFragment : Fragment() {
         handler.postDelayed(runnable, 100)
     }
 
-    private fun animateDownloadButton() {
+    private fun setUpPlayerSource(audioPath: String) {
+        if (setMedia(audioPath)) {
+            binding.download.setImageResource(R.drawable.ic_downloaded)
+            disableDownloadClick()
+            isAudioObserved = true
+        }
+    }
+
+    @SuppressLint("Range")
+    private suspend fun downloadAudio(surahNumber: Int, reciter: String) {
+        withContext(Dispatchers.IO) {
+            /** Request a download */
+            val filename = "$surahNumber.mp3" // format name of a file
+            audioPath = String.format(
+                "/storage/emulated/0/Music/%s/%s/%s",
+                getString(R.string.app_name), // parent folder
+                reciter, // subfolder
+                filename //file
+            )
+            // create directory
+            val direct = File(
+                resources.getString(R.string.app_name) + "/"
+            )
+            // make directory
+            if (!direct.exists()) {
+                direct.mkdir()
+            }
+            // create download manager
+            val downloadManager =
+                requireContext().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            val downloadUri: Uri = Uri.parse(surahAudioUrlBySurah)
+            val request = DownloadManager.Request(downloadUri)
+            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+                .setAllowedOverRoaming(false)
+                .setTitle(filename)
+                .setMimeType("audio/mpeg")
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED or DownloadManager.Request.VISIBILITY_VISIBLE)
+                .setDestinationInExternalPublicDir(
+                    Environment.DIRECTORY_MUSIC,
+                    File.separator + getString(R.string.app_name) + File.separator.toString() + reciter + File.separator.toString() + filename
+                )
+            downloadId = downloadManager.enqueue(request)
+            snackBar("Downloading...")
+            disableDownloadClick()
+        }
+    }
+
+    private val onComplete: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == DownloadManager.ACTION_DOWNLOAD_COMPLETE) {
+                intent.extras?.let {
+                    //retrieving the file
+                    val downloadedFileId = it.getLong(DownloadManager.EXTRA_DOWNLOAD_ID)
+                    if (downloadId == downloadedFileId) {
+                        snackBar("Download Completed")
+                        setUpPlayerSource(audioPath!!)
+                        animateDownloadButton()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun disableDownloadClick() {
         binding.download.isClickable = false
         binding.download.isEnabled = false
+    }
 
+    private fun animateDownloadButton() {
+        disableDownloadClick()
         val rotate = RotateAnimation(
             0f,
             360f,
@@ -428,6 +457,19 @@ class SurahFragment : Fragment() {
                 e.printStackTrace()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        requireActivity().registerReceiver(
+            onComplete,
+            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+        )
+    }
+
+    override fun onPause() {
+        super.onPause()
+        requireActivity().unregisterReceiver(onComplete)
     }
 
     override fun onDestroy() {

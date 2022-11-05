@@ -3,7 +3,7 @@
     <string name="choose_language">Choose Language</string>
     <string name="choose_translation">Choose Translation By</string>
     <string name="choose_recitation">Choose Reciter</string>
-    <string name="downloading">Downloaded</string>
+    <string name="downloaded">Downloaded</string>
     <string name="translator">Translator</string>
     <string name="reciter">Reciter</string>
     <string name="loading_error">Loading error...</string>

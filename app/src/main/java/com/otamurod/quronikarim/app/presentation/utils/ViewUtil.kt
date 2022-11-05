@@ -7,7 +7,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
 
 
-fun Fragment.snackBar(@StringRes text: Int) {
+fun Fragment.snackBar(text: String) {
     val snackbar = Snackbar.make(requireActivity().window.decorView, text, Snackbar.LENGTH_LONG)
 
     val snackbarLayout: View = snackbar.view

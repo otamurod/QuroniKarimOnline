@@ -4,12 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/grey_500"
     android:fillViewport="true"
+    android:background="?attr/colorSurface"
     tools:context=".app.presentation.ui.surah.SurahFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
+        android:background="@color/background"
         android:layout_height="wrap_content">
 
         <TextView
@@ -42,7 +43,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
+                android:background="?attr/colorSurface"
                 android:orientation="horizontal"
                 android:padding="3dp">
 
@@ -86,7 +87,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginRight="8dp"
                     android:text="Name"
-                    android:textColor="?attr/colorPrimary"
+                    android:textColor="?attr/colorPrimaryDark"
                     android:textSize="25sp"
                     app:layout_constraintBottom_toBottomOf="@id/englishName"
                     app:layout_constraintRight_toRightOf="parent"
@@ -123,7 +124,7 @@
                     android:layout_marginTop="6dp"
                     android:drawableLeft="@drawable/ic_book"
                     android:drawablePadding="15dp"
-                    android:drawableTint="@color/green_500"
+                    android:drawableTint="?attr/colorSecondary"
                     android:fontFamily="sans-serif"
                     android:maxLines="1"
                     android:text="Translator"
@@ -143,7 +144,7 @@
                     android:layout_marginBottom="5dp"
                     android:drawableLeft="@drawable/ic_man"
                     android:drawablePadding="15dp"
-                    android:drawableTint="@color/green_500"
+                    android:drawableTint="?attr/colorSecondary"
                     android:fontFamily="sans-serif"
                     android:maxLines="1"
                     android:text="Reciter"
@@ -173,7 +174,7 @@
                         android:padding="4dp"
                         android:text="UZ"
                         android:textAllCaps="true"
-                        android:textColor="@color/white"
+                        android:textColor="?attr/colorSurface"
                         android:textSize="15sp"
                         android:textStyle="bold" />
                 </androidx.cardview.widget.CardView>
@@ -223,7 +224,7 @@
             android:layout_marginLeft="5dp"
             android:layout_marginBottom="2dp"
             android:background="@drawable/bg2"
-            android:backgroundTint="@color/white"
+            android:backgroundTint="?attr/colorSurface"
             android:padding="8dp"
             android:src="@drawable/ic_text_decrease"
             android:visibility="invisible"
@@ -236,7 +237,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
             android:background="@drawable/bg2"
-            android:backgroundTint="@color/white"
+            android:backgroundTint="?attr/colorSurface"
             android:padding="8dp"
             android:src="@drawable/ic_text_increase"
             android:visibility="invisible"
@@ -260,10 +261,13 @@
             app:layout_constraintTop_toBottomOf="@id/scrollView">
 
             <ImageView
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:id="@+id/play_btn"
-                android:layout_width="match_parent"
+                android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:layout_weight="7"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="10dp"
+                android:padding="2dp"
                 android:src="@drawable/ic_play_arrow" />
 
             <TextView
@@ -274,7 +278,7 @@
                 android:contextClickable="false"
                 android:padding="2dp"
                 android:text="00:00:00"
-                android:textColor="@color/black"
+                android:textColor="?attr/colorSecondary"
                 android:textSize="15sp" />
 
             <TextView
@@ -285,24 +289,27 @@
                 android:contextClickable="false"
                 android:padding="2dp"
                 android:text="/00:00:00"
-                android:textColor="@color/black"
+                android:textColor="?attr/colorSecondary"
                 android:textSize="15sp" />
 
             <SeekBar
                 android:id="@+id/seekbar"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:layout_weight="5"
+                android:layout_weight="1"
                 android:progressBackgroundTint="?attr/colorSecondaryVariant"
                 android:progressTint="?attr/colorSecondary"
                 android:thumbTint="?attr/colorSecondary" />
 
             <ImageView
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:id="@+id/download"
-                android:layout_width="match_parent"
+                android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:layout_weight="7"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="15dp"
+                android:padding="2dp"
                 android:src="@drawable/ic_downloading" />
 
         </LinearLayout>

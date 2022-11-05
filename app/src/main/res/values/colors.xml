@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="primary">#283593</color>
-    <color name="primaryVariant">#1A237E</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="grey_500">#9AE0F2F1</color>
-    <color name="green_500">#0FEE16</color>
-    <color name="green_700">#25A629</color>
-    <color name="light_aqua">#BDCEE4F8</color>
-    <color name="aqua">#3B53A8F4</color>
+    // for light theme
+    <color name="primary">#0d47a1</color>
+    <color name="primaryVariant">#002171</color>
+    <color name="background">#9FE0F2F1</color>
+    <color name="foreground">#FFFFFFFF</color>
+    <color name="color_secondary">#64dd17</color>
+    <color name="color_secondary_variant">#1faa00</color>
+    <color name="accent">#4CBEF1</color>
+    // for dark theme
+    <color name="primary_dark">#E11B2F37</color>
+    <color name="primaryVariant_dark">#1B2F37</color>
+    <color name="background_dark">#384C56</color>
+    <color name="foreground_dark">@color/white</color>
+    <color name="color_secondary_dark">#607d8c</color>
+    <color name="color_secondary_variant_dark">#34515f</color>
+    <color name="accent_dark">#53778B</color>
 </resources>

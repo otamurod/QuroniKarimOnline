@@ -5,8 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.otamurod.quronikarim.app.domain.model.reciter.Reciter
-import com.otamurod.quronikarim.app.domain.model.translator.Translator
 import com.otamurod.quronikarim.app.domain.model.surah.Surah
+import com.otamurod.quronikarim.app.domain.model.translator.Translator
 import com.otamurod.quronikarim.app.domain.repository.Repository
 import com.otamurod.quronikarim.app.presentation.utils.SingleLiveEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -76,9 +76,7 @@ class MainViewModel @Inject constructor(
     fun getSurahesCall() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getAllSurah().catch {
-                withContext(Dispatchers.Main) {
-                    _error.call()
-                }
+                _error.call()
             }.collectLatest {
                 _surahes.postValue(it)
             }
@@ -99,11 +97,12 @@ class MainViewModel @Inject constructor(
 
     fun getRecitersCall() {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.getReciters("https://raw.githubusercontent.com/islamic-network/cdn/master/info/cdn_surah_audio.json").catch {
-                withContext(Dispatchers.Main) {
-                    _error.call()
-                }
-            }.collectLatest {
+            repository.getReciters("https://raw.githubusercontent.com/islamic-network/cdn/master/info/cdn_surah_audio.json")
+                .catch {
+                    withContext(Dispatchers.Main) {
+                        _error.call()
+                    }
+                }.collectLatest {
                 _reciters.postValue(it)
             }
         }
