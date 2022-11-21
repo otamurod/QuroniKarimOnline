@@ -12,6 +12,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
 import com.karumi.dexter.Dexter
@@ -30,6 +33,8 @@ import com.otamurod.quronikarim.app.presentation.utils.checkNetworkStatus
 import com.otamurod.quronikarim.databinding.DialogTitleBinding
 import com.otamurod.quronikarim.databinding.FragmentMainBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
@@ -38,7 +43,6 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     private val viewModel: MainViewModel by viewModels()
     private var languages = arrayListOf<String>()
     private var reciters = arrayListOf<Reciter>()
-    private lateinit var alertDialog: AlertDialog
     private lateinit var mPrefs: SharedPreferences
     private lateinit var prefsEditor: SharedPreferences.Editor
     private var language: String? = null
@@ -67,8 +71,6 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         binding = FragmentMainBinding.inflate(layoutInflater, container, false)
         binding.toolbar.setOnMenuItemClickListener(this)
         binding.toolbar.inflateMenu(R.menu.my_menu)
-        alertDialog = AlertDialog.Builder(requireContext()).create()
-        alertDialog.dismiss()
         return binding.root
     }
 
@@ -116,10 +118,14 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     // call api
     @RequiresApi(Build.VERSION_CODES.N)
     private fun makeApiCall() {
-        if (checkNetworkStatus(requireContext())) {
-            requestAllSurahes()
-            requestLanguages()
-        } else {
+        try {
+            if (checkNetworkStatus(requireContext())) {
+                requestAllSurahes()
+                requestLanguages()
+            } else {
+                makeNotifyVisible()
+            }
+        } catch (e: Exception) {
             makeNotifyVisible()
         }
     }
@@ -197,27 +203,35 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             mainAdapter.setUpdatedData(data)
         }
         // observe translators
-        viewModel.translator.observe(viewLifecycleOwner) { translators ->
-            // filter translated editions according to the chosen language
-            val identifierList = translators.filter {
-                it.language == language
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.translator.collectLatest { translators ->
+                    // filter translated editions according to the chosen language
+                    val identifierList = translators.filter {
+                        it.language == language
+                    }
+                    binding.progressBar.visibility = View.GONE
+                    // show available translations
+                    showTranslatorDialog(identifierList as ArrayList<Translator>)
+                }
             }
-            binding.progressBar.visibility = View.GONE
-            // show available translations
-            showTranslatorDialog(identifierList as ArrayList<Translator>)
         }
         // observe reciters
-        viewModel.reciter.observe(viewLifecycleOwner) { list ->
-            // get all reciters
-            reciters = list as ArrayList<Reciter>
-            val reciterNames = arrayListOf<String>()
-            // get names of all reciters
-            for (reciter in reciters) {
-                reciterNames.add(reciter.englishName)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.reciter.collectLatest { list ->
+                    // get all reciters
+                    reciters = list as ArrayList<Reciter>
+                    val reciterNames = arrayListOf<String>()
+                    // get names of all reciters
+                    for (reciter in reciters) {
+                        reciterNames.add(reciter.englishName)
+                    }
+                    binding.progressBar.visibility = View.GONE
+                    // show reciters to choose
+                    showRecitersDialog(reciterNames.toTypedArray())
+                }
             }
-            binding.progressBar.visibility = View.GONE
-            // show reciters to choose
-            showRecitersDialog(reciterNames.toTypedArray())
         }
         // observe error
         viewModel.error.observe(viewLifecycleOwner) {
@@ -275,19 +289,20 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         val builder = AlertDialog.Builder(requireActivity())
         setDialogView(builder, R.string.choose_language)
 
-        alertDialog = requireActivity().let {
+        val alertDialog = requireActivity().let {
             builder.setAdapter(
                 adapter
-            ) { _, which ->
+            ) { dialog, which ->
                 language = languages[which]
                 storeLanguage()
                 requestTranslators()
                 binding.progressBar.visibility = View.VISIBLE
+                dialog.dismiss()
             }
             builder.create()
         }
         alertDialog.show()
-        setDialogLayout()
+        setDialogLayout(alertDialog)
     }
 
     // function to pick a translator
@@ -308,19 +323,20 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             names.toTypedArray(), R.drawable.ic_book, translator?.englishName
         )
         setDialogView(builder, R.string.choose_translation)
-        alertDialog = requireActivity().let {
+        val alertDialog = requireActivity().let {
             builder.setAdapter(
                 adapter
-            ) { _, which -> // filter translators according to their names to get their "identifier"
+            ) { dialog, which -> // filter translators according to their names to get their "identifier"
                 val name = translatorList.filter { it.englishName == names[which] }
                 // get translator
                 translator = name[0]
                 storeTranslator()
+                dialog.dismiss()
             }
             builder.create()
         }
         alertDialog.show()
-        setDialogLayout()
+        setDialogLayout(alertDialog)
     }
 
     // function to pick a reciter
@@ -332,20 +348,21 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
             recitersName, R.drawable.ic_man, reciter?.englishName
         )
         setDialogView(builder, R.string.choose_recitation)
-        alertDialog = requireActivity().let {
+        val alertDialog = requireActivity().let {
             builder.setAdapter(
                 adapter
-            ) { _, which -> // get the selected reciter using his name
+            ) { dialog, which -> // get the selected reciter using his name
                 val selectedReciter = reciters.filter { reciter ->
                     reciter.englishName == recitersName[which]
                 }
                 reciter = selectedReciter[0]
                 storeReciter()
+                dialog.dismiss()
             }
             builder.create()
         }
         alertDialog.show()
-        setDialogLayout()
+        setDialogLayout(alertDialog)
     }
 
     private fun setDialogView(builder: AlertDialog.Builder, titleId: Int) {
@@ -354,9 +371,10 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         builder.setCustomTitle(dialogViewBinding.root)
     }
 
-    private fun setDialogLayout() {
+    private fun setDialogLayout(alertDialog: AlertDialog) {
         val width = binding.toolbar.width
-        alertDialog.window?.setLayout(width - 50, width + 200)
+        val height = binding.toolbar.height
+        alertDialog.window?.setLayout(width - 60, 7 * height)
     }
 
     // inflate menu
@@ -379,11 +397,4 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         }
         return true
     }
-
-    // on resume
-    override fun onResume() {
-        super.onResume()
-        alertDialog.dismiss()
-    }
-
 }

@@ -11,8 +11,10 @@ import com.otamurod.quronikarim.app.domain.repository.Repository
 import com.otamurod.quronikarim.app.presentation.utils.SingleLiveEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -24,11 +26,11 @@ class MainViewModel @Inject constructor(
     private var _surahes = MutableLiveData<List<Surah>>()
     val surahes: LiveData<List<Surah>> = _surahes
 
-    private var _translators = MutableLiveData<List<Translator>>()
-    val translator: LiveData<List<Translator>> = _translators
+    private var _translators = Channel<List<Translator>>()
+    val translator= _translators.receiveAsFlow()
 
-    private var _reciters = MutableLiveData<List<Reciter>>()
-    val reciter: LiveData<List<Reciter>> = _reciters
+    private var _reciters = Channel<List<Reciter>>()
+    val reciter = _reciters.receiveAsFlow()
 
     private val langs = arrayListOf(
         "ar",
@@ -76,7 +78,9 @@ class MainViewModel @Inject constructor(
     fun getSurahesCall() {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getAllSurah().catch {
-                _error.call()
+                withContext(Dispatchers.Main) {
+                    _error.call()
+                }
             }.collectLatest {
                 _surahes.postValue(it)
             }
@@ -90,7 +94,7 @@ class MainViewModel @Inject constructor(
                     _error.call()
                 }
             }.collectLatest {
-                _translators.postValue(it)
+                _translators.send(it)
             }
         }
     }
@@ -103,7 +107,7 @@ class MainViewModel @Inject constructor(
                         _error.call()
                     }
                 }.collectLatest {
-                _reciters.postValue(it)
+                _reciters.send(it)
             }
         }
     }
