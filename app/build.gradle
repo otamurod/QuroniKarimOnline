@@ -19,7 +19,7 @@ android {
         targetSdk 32
         versionCode 3
         versionName "2.4.10"
-
+        multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -86,4 +86,6 @@ dependencies {
     //chuck interceptor
     debugImplementation "com.github.chuckerteam.chucker:library:3.5.2"
     releaseImplementation "com.github.chuckerteam.chucker:library-no-op:3.5.2"
+
+    implementation 'com.android.support:multidex:1.0.3'
 }
