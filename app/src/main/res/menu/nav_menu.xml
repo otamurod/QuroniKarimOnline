@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="HardcodedText">
+    <item
+        android:id="@+id/home"
+        android:icon="@drawable/ic_home"
+        android:title="@string/ic_home" />
+    <item
+        android:id="@+id/rule"
+        android:icon="@drawable/ic_rule"
+        android:title="@string/rule" />
+    <item
+        android:id="@+id/rate"
+        android:icon="@drawable/ic_rate"
+        android:title="@string/ic_rate" />
+    <item
+        android:id="@+id/about"
+        android:icon="@drawable/ic_about"
+        android:title="@string/ic_about" />
+</menu>

@@ -15,6 +15,15 @@
         <action
             android:id="@+id/action_MainFragment_to_surahFragment"
             app:destination="@id/surahFragment" />
+        <action
+            android:id="@+id/action_MainFragment_to_rateFragment"
+            app:destination="@id/rateFragment" />
+        <action
+            android:id="@+id/action_MainFragment_to_rulesFragment"
+            app:destination="@id/rulesFragment" />
+        <action
+            android:id="@+id/action_MainFragment_to_aboutFragment"
+            app:destination="@id/aboutFragment" />
     </fragment>
     <fragment
         android:id="@+id/surahFragment"
@@ -31,4 +40,19 @@
             android:name="reciter"
             app:argType="com.otamurod.quronikarim.app.domain.model.reciter.Reciter" />
     </fragment>
+    <fragment
+        android:id="@+id/rulesFragment"
+        android:name="com.otamurod.quronikarim.app.presentation.ui.rule.RulesFragment"
+        android:label="fragment_rules"
+        tools:layout="@layout/fragment_rules" />
+    <fragment
+        android:id="@+id/rateFragment"
+        android:name="com.otamurod.quronikarim.app.presentation.ui.rate.RateFragment"
+        android:label="fragment_rate"
+        tools:layout="@layout/fragment_rate" />
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="com.otamurod.quronikarim.app.presentation.ui.about.AboutFragment"
+        android:label="fragment_about"
+        tools:layout="@layout/fragment_about" />
 </navigation>

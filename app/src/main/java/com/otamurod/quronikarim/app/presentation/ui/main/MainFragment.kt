@@ -5,11 +5,11 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
+import android.provider.SyncStateContract
 import android.view.*
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -37,7 +37,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
+class MainFragment : Fragment() {
     private lateinit var binding: FragmentMainBinding
     private lateinit var mainAdapter: MainAdapter
     private val viewModel: MainViewModel by viewModels()
@@ -61,6 +61,7 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        requireActivity().title = getString(R.string.ic_home)
         askPermission()
     }
 
@@ -69,8 +70,6 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentMainBinding.inflate(layoutInflater, container, false)
-        binding.toolbar.setOnMenuItemClickListener(this)
-        binding.toolbar.inflateMenu(R.menu.my_menu)
         return binding.root
     }
 
@@ -377,6 +376,11 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
         alertDialog.window?.setLayout(width - 60, 7 * height)
     }
 
+    override fun onResume() {
+        requireActivity().title = getString(R.string.ic_home)
+        super.onResume()
+    }
+
     // inflate menu
     @Deprecated("Deprecated in Java")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -385,8 +389,8 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     }
 
     // handle menu item click
-    override fun onMenuItemClick(item: MenuItem?): Boolean {
-        when (item!!.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
             R.id.translation -> {
                 showLanguageDialog()
             }
@@ -395,6 +399,6 @@ class MainFragment : Fragment(), Toolbar.OnMenuItemClickListener {
                 binding.progressBar.visibility = View.VISIBLE
             }
         }
-        return true
+        return super.onOptionsItemSelected(item)
     }
 }

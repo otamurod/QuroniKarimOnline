@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Qur\'an Online</string>
+    <string name="choose_language">Выберите язык</string>
+    <string name="choose_translation">Выберите перевод</string>
+    <string name="choose_recitation">Выберите Чтец</string>
+    <string name="downloaded">Скачано</string>
+    <string name="translator">Переводчик</string>
+    <string name="reciter">Чтец</string>
+    <string name="loading_error">Ошибка загрузки...</string>
+    <string name="ic_about">О приложении</string>
+    <string name="ic_rate">Оцените нас</string>
+    <string name="ic_home">Главный</string>
+    <string name="rule">Правила</string>
+    <string name="navigation_drawer_open">navigation_drawer_open</string>
+    <string name="navigation_drawer_close">navigation_drawer_close</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="bismillahir_rohmanir_rahiym">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</string>
+    <string name="rate_us_5_star">Оцените нас 5 звезд</string>
+    <string name="rate_now">Оценить сейчас</string>
+    <string name="using_translate_icon">Используйте значок в меню, чтобы получить переведенные издания Священного Корана.</string>
+    <string name="reading_usage">Любое переведенное издание Священного Корана можно читать на новом экране</string>
+    <string name="listening_usage">Прослушайте декламацию вашего любимого чтеца после того, как вы скачаете аудио один раз</string>
+    <string name="share">Делиться</string>
+    <string name="rules">\n1. Не забудьте совершить омовение перед использованием приложения Священного Корана. \n\n2. Не кладите телефон ниже пояса во время использования приложения. \n\n3. При чтении оригинала или перевода рекомендуется сидеть лицом к кибле. \n\n4. Слушая декламацию, слушайте внимательно, стоя лицом к Кибле в тихом, опрятном и свободном от беспорядка месте. \n\n5. Так как приложение содержит сборник аятов и глав Корана, с ним желательно быть осторожным, как при использовании мусхафа.\n\n\n</string>
+    <string name="instructions">Применение</string>
+    <string name="usage">Использовать</string>
+    <string name="version">Версия: 2.4.10</string>
+    <string name="using_reciter_icon">Используйте значок в меню, чтобы выбрать чтеца</string>
+    <string name="connect_network">Подключение к сети...</string>
+    <string name="retry">Повторить попытку</string>
+    <string name="support">Поддержите нас, поставив 5 звезд и написав свой отзыв</string>
+    <string name="download_audio">Пожалуйста, загрузите аудио</string>
+    <string name="downloading">Загрузка...</string>
+    <string name="download_complete">Загрузка завершена</string>
+    <string name="link">Ссылка на приложение</string>
+    <string name="share_via">Поделитесь ссылкой на приложение через: </string>
+    <string name="app_link">Ссылка на приложение</string>
+    <string name="ayahs">аяты</string>
+    <string name="meaning">Значение на английском языке:</string>
+</resources>

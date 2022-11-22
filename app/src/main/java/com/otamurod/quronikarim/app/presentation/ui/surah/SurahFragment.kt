@@ -23,10 +23,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
-import com.google.mlkit.common.model.DownloadConditions
-import com.google.mlkit.nl.translate.TranslateLanguage
-import com.google.mlkit.nl.translate.Translation
-import com.google.mlkit.nl.translate.TranslatorOptions
 import com.otamurod.quronikarim.R
 import com.otamurod.quronikarim.app.domain.model.audio.SurahAudio
 import com.otamurod.quronikarim.app.domain.model.reciter.Reciter
@@ -85,6 +81,12 @@ class SurahFragment : Fragment() {
         } catch (e: Exception) {
             makeNotifyVisible()
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setHasOptionsMenu(true)
+        requireActivity().title = getString(R.string.bismillahir_rohmanir_rahiym)
+        super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(
@@ -163,7 +165,11 @@ class SurahFragment : Fragment() {
         // Play Audio Button Listener
         binding.playBtn.setOnClickListener {
             if (!isAudioObserved) {
-                Toast.makeText(requireContext(), "Please Download Audio", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.download_audio),
+                    Toast.LENGTH_SHORT
+                ).show()
             } else if (mediaPlayer == null) {
                 // do something
 //                setUpPlayerSource(audioPath)
@@ -254,8 +260,8 @@ class SurahFragment : Fragment() {
 
     private fun setAudioInfo(surahAudio: SurahAudio) {
         var audio = true
-        binding.numberOfAyahs.text = surahAudio.numberOfAyahs.toString()
-        translate("ayahs", language)
+        binding.numberOfAyahs.text =
+            String.format("%d %s", surahAudio.numberOfAyahs, getString(R.string.ayahs))
         var ayahNumber = 1
         stringBuilder.clear()
         stringBuilder.setLength(0)
@@ -293,69 +299,13 @@ class SurahFragment : Fragment() {
             name.text = surah.name
             surahNumber.text = surah.number.toString()
             languageTv.text = language
-            englishNameTranslation.text = surah.englishNameTranslation
+            englishNameTranslation.text =
+                "${getString(R.string.meaning)}: ${surah.englishNameTranslation}"
             translatorTv.text =
                 String.format("%s: %s", getString(R.string.translator), translator.englishName)
             reciterTv.text =
                 String.format("%s: %s", getString(R.string.reciter), reciter.englishName)
         }
-        translate(surah.englishNameTranslation, language)
-        translate(getString(R.string.translator), language)
-        translate(getString(R.string.reciter), language)
-    }
-
-    private fun translate(text: String, targetLang: String) {
-        try {
-            val options = TranslatorOptions.Builder()
-                .setSourceLanguage(TranslateLanguage.ENGLISH)
-                .setTargetLanguage(TranslateLanguage.fromLanguageTag(targetLang)!!)
-                .build()
-            val langTranslator = Translation.getClient(options)
-
-            val conditions = DownloadConditions.Builder()
-                .requireWifi()
-                .build()
-
-            langTranslator.downloadModelIfNeeded(conditions)
-                .addOnSuccessListener {
-                    // Model downloaded successfully. Okay to start translating.
-                    // (Set a flag, unhide the translation UI, etc.)
-                    langTranslator.translate(text)
-                        .addOnSuccessListener { translatedText ->
-                            // Translation successful.
-                            when (text) {
-                                "ayahs" -> {
-                                    binding.ayahs.text = translatedText
-                                }
-                                surah.englishNameTranslation -> {
-                                    binding.englishNameTranslation.text = translatedText
-                                }
-                                getString(R.string.translator) -> {
-                                    binding.translatorTv.text = String.format(
-                                        "%s: %s",
-                                        translatedText,
-                                        translator.englishName
-                                    )
-                                }
-                                getString(R.string.reciter) -> {
-                                    binding.reciterTv.text = String.format(
-                                        "%s: %s",
-                                        translatedText,
-                                        reciter.englishName
-                                    )
-                                }
-                            }
-                        }.addOnFailureListener { exception ->
-                            // Error.
-                            // ...
-                        }
-                }
-                .addOnFailureListener { exception ->
-                    // Model couldn’t be downloaded or other internal error.
-                    // ...
-                }
-
-        }catch (e:Exception){}
     }
 
     private fun returnTime(position: Int?): String {
@@ -472,7 +422,7 @@ class SurahFragment : Fragment() {
                     File.separator + getString(R.string.app_name) + File.separator.toString() + reciter + File.separator.toString() + filename
                 )
             downloadId = downloadManager.enqueue(request)
-            snackBar("Downloading...")
+            snackBar(getString(R.string.downloading))
             disableDownloadClick()
         }
     }
@@ -484,7 +434,7 @@ class SurahFragment : Fragment() {
                     //retrieving the file
                     val downloadedFileId = it.getLong(DownloadManager.EXTRA_DOWNLOAD_ID)
                     if (downloadId == downloadedFileId) {
-                        snackBar("Download Completed")
+                        snackBar(getString(R.string.download_complete))
                         setUpPlayerSource(audioPath!!)
                         animateDownloadButton()
                     }

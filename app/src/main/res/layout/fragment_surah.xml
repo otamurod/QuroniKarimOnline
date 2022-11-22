@@ -4,29 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorOutline"
     android:fillViewport="true"
-    android:background="?attr/colorSurface"
     tools:context=".app.presentation.ui.surah.SurahFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:background="@color/background"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:gravity="center"
-            android:id="@+id/heading"
-            android:layout_width="match_parent"
-            android:layout_height="?actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:text="بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ"
-            android:textAlignment="center"
-            android:textColor="@color/white"
-            android:textSize="30sp"
-            app:layout_constraintBottom_toTopOf="@id/card"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="wrap_content"
+        android:background="@color/background">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/card"
@@ -38,12 +23,12 @@
             app:layout_constraintBottom_toTopOf="@id/scrollView"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/heading">
+            app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/colorSurface"
+                android:background="?attr/colorOutline"
                 android:orientation="horizontal"
                 android:padding="3dp">
 
@@ -95,11 +80,11 @@
 
                 <TextView
                     android:id="@+id/englishNameTranslation"
-                    android:layout_width="wrap_content"
+                    android:layout_width="260dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="3dp"
-                    android:text="englishNameTranslation"
+                    android:text="@string/meaning"
                     android:textColor="?attr/colorPrimary"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toTopOf="@id/translator_tv"
@@ -110,18 +95,7 @@
                     android:id="@+id/numberOfAyahs"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="7"
-                    android:layout_marginRight="5dp"
-                    android:textColor="@color/black"
-                    android:textSize="15sp"
-                    app:layout_constraintBottom_toBottomOf="@id/englishNameTranslation"
-                    app:layout_constraintRight_toLeftOf="@id/ayahs" />
-
-                <TextView
-                    android:id="@+id/ayahs"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="ayahs"
+                    android:text="7 ayahs"
                     android:textColor="@color/black"
                     android:textSize="15sp"
                     app:layout_constraintBottom_toBottomOf="@id/englishNameTranslation"
@@ -185,7 +159,7 @@
                         android:padding="4dp"
                         android:text="UZ"
                         android:textAllCaps="true"
-                        android:textColor="?attr/colorSurface"
+                        android:textColor="?attr/colorOutline"
                         android:textSize="15sp"
                         android:textStyle="bold" />
                 </androidx.cardview.widget.CardView>
@@ -235,7 +209,7 @@
             android:layout_marginLeft="5dp"
             android:layout_marginBottom="2dp"
             android:background="@drawable/bg2"
-            android:backgroundTint="?attr/colorSurface"
+            android:backgroundTint="?attr/colorOutline"
             android:padding="8dp"
             android:src="@drawable/ic_text_decrease"
             android:visibility="invisible"
@@ -248,7 +222,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
             android:background="@drawable/bg2"
-            android:backgroundTint="?attr/colorSurface"
+            android:backgroundTint="?attr/colorOutline"
             android:padding="8dp"
             android:src="@drawable/ic_text_increase"
             android:visibility="invisible"
@@ -272,12 +246,12 @@
             app:layout_constraintTop_toBottomOf="@id/scrollView">
 
             <ImageView
-                android:background="?attr/selectableItemBackgroundBorderless"
                 android:id="@+id/play_btn"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_marginStart="15dp"
                 android:layout_marginEnd="10dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="2dp"
                 android:src="@drawable/ic_play_arrow" />
 
@@ -314,12 +288,12 @@
                 android:thumbTint="?attr/colorSecondary" />
 
             <ImageView
-                android:background="?attr/selectableItemBackgroundBorderless"
                 android:id="@+id/download"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="15dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="2dp"
                 android:src="@drawable/ic_downloading" />
 
@@ -332,7 +306,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="-100dp"
             android:backgroundTint="?attr/colorSecondaryVariant"
-            android:text="Retry"
+            android:text="@string/retry"
             android:textSize="16sp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">القرآن اون لاين</string>
+    <string name="choose_language">اختر اللغة</string>
+    <string name="choose_translation">اختر الترجمة حسب</string>
+    <string name="choose_recitation">اختر القارئ</string>
+    <string name="downloaded">تم التنزيل</string>
+    <string name="translator">مترجم</string>
+    <string name="reciter">القارئ</string>
+    <string name="loading_error">خطأ في التحميل</string>
+    <string name="ic_about">حول</string>
+    <string name="ic_rate">قيمنا</string>
+    <string name="ic_home">رئيسي</string>
+    <string name="rule">قواعد</string>
+    <string name="navigation_drawer_open">navigation_drawer_open</string>
+    <string name="navigation_drawer_close">navigation_drawer_close</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="bismillahir_rohmanir_rahiym">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ</string>
+    <string name="rate_us_5_star">قيمنا 5 نجوم</string>
+    <string name="rate_now">قيم الآن</string>
+    <string name="using_translate_icon">استخدم الأيقونة الموجودة في القائمة للحصول على طبعات مترجمة من القرآن الكريم</string>
+    <string name="reading_usage">يمكن قراءة أي نسخة مترجمة من القرآن الكريم على الشاشة الجديدة</string>
+    <string name="listening_usage">استمع إلى التلاوة بواسطة القارئ المفضل لديك بعد تنزيل الصوت مرة واحدة</string>
+    <string name="share">يشارك</string>
+    <string name="rules">\n1. لا تنسى أن تتوضأ قبل استخدام تطبيق القرآن الكريم.\n\n2. لا تضع هاتفك تحت الخصر أثناء استخدام التطبيق.\n\n3. يُنصح بالجلوس في مواجهة القبلة أثناء قراءة النص الأصلي أو الترجمة.\n\n4. أثناء الاستماع إلى التلاوة ، استمع جيدًا أثناء مواجهة القبلة في مكان هادئ ومرتب وخالٍ من الفوضى.\n\n5. بما أن التطبيق يحتوي على مجموعة من الآيات والسور القرآنية ، فمن الأفضل توخي الحذر معها كما لو كنت تستخدم المصحف. \n\n\n</string>
+    <string name="instructions">تعليمات</string>
+    <string name="usage">استعمال</string>
+    <string name="version">إصدار: 2.4.10</string>
+    <string name="using_reciter_icon">استخدم الأيقونة الموجودة في القائمة لاختيار القارئ</string>
+    <string name="connect_network">الاتصال بالشبكة ...</string>
+    <string name="retry">أعد المحاولة</string>
+    <string name="support">ادعمنا بإعطاء 5 نجوم وكتابة رأيك</string>
+    <string name="download_audio">من فضلك ، قم بتنزيل الصوت</string>
+    <string name="downloading">جارى التحميل...</string>
+    <string name="download_complete">انتها التحميل</string>
+    <string name="link">رابط التطبيق</string>
+    <string name="share_via">مشاركة رابط التطبيق عبر</string>
+    <string name="app_link">رابط التطبيق</string>
+    <string name="ayahs">آيات</string>
+    <string name="meaning">معنى في اللغة الإنجليزية </string>
+</resources>

@@ -13,24 +13,12 @@ android {
     namespace 'com.otamurod.quronikarim'
     compileSdk 32
 
-    packagingOptions {
-        exclude 'META-INF/DEPENDENCIES'
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/license.txt'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
-        exclude 'META-INF/notice.txt'
-        exclude 'META-INF/ASL2.0'
-        exclude("META-INF/*.kotlin_module")
-    }
-
     defaultConfig {
         applicationId "com.otamurod.quronikarim"
         minSdk 21
         targetSdk 32
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "2.4.10"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -98,15 +86,4 @@ dependencies {
     //chuck interceptor
     debugImplementation "com.github.chuckerteam.chucker:library:3.5.2"
     releaseImplementation "com.github.chuckerteam.chucker:library-no-op:3.5.2"
-
-    // translate
-    implementation 'com.google.apis:google-api-services-translate:v2-rev20170525-1.32.1'
-    // ML Kit
-    implementation 'com.google.mlkit:translate:17.0.1'
-
-    // Use this dependency to bundle the model with your app
-    implementation 'com.google.mlkit:language-id:17.0.4'
-    // Use this dependency to use the dynamically downloaded model in Google Play Services
-    implementation 'com.google.android.gms:play-services-mlkit-language-id:17.0.0'
-
 }
